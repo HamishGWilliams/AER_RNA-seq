@@ -3,6 +3,8 @@
 ## ! NOTE: There are still parts which I don't fully understand either the purpose of, or the code of. I will note down where, and update in subsequent versions
 ## !       of this first dive into RNA-seq
 
+```r
+
 ## This Script will attempt to automate much of the work completed in a 
 ## RNA-seq analysis, including installing and loading all necessary 
 ## packages, importing, transforming, and analysing data; then producing
@@ -587,3 +589,4 @@ dev.copy(png, file = file.path(getwd(),"figures/PCA_adjusted.png"))
 dev.off()
 par(mfrow = c(1,1))
 }
+```
