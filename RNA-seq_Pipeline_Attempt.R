@@ -2,6 +2,7 @@
 ## RNA-seq analysis, including installing and loading all necessary 
 ## packages, importing, transforming, and analysing data; then producing
 ## figures and exporting the all to a single folder which can be accessed
+#Uploaded to GitHub
 
 ## 0. Create a new Directory to put figures and plots into: ----
 setwd("C:\\Users\\hamis\\OneDrive\\Documents\\PhD\\R_Studio_Analyses\\Computational_Genomics_in_R")
