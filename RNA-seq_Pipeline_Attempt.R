@@ -3,19 +3,8 @@
 ## packages, importing, transforming, and analysing data; then producing
 ## figures and exporting the all to a single folder which can be accessed
 
-install.packages("languageserver")
-"languageserver": {
-  "R": {
-    "command": "/usr/bin/R",
-    "args" : [ "--slave", "-e", "languageserver::run()"],
-    "filetypes" : ["r"]
-  }
-}
-
 ## 0. Create a new Directory to put figures and plots into: ----
 setwd("C:\\Users\\hamis\\OneDrive\\Documents\\PhD\\R_Studio_Analyses\\Computational_Genomics_in_R")
-    # This doesn't seem to work on my computer, so i have to manually 
-    # select my working directory.
 
 dir.create(file.path(getwd(),"figures")) ## Change name of "figures" to 
                                          ## your given choice name.
