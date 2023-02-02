@@ -130,7 +130,7 @@ pheatmap(correlationMatrix,
          annotation_col = colData, 
          cutree_cols = 2)
 
-dev.copy(png, file = file.path(getwd(),"figures/corr_heatmap.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/corr_heatmap.png"))
 dev.off()
 }
 
