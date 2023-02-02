@@ -19,3 +19,9 @@ The script components should be ran in the following order:
   - *Assembles** the reads and *quantifies* them using **StringTie**
 5. **merge**
   - *Merges* the assembled  
+
+Will update the above section when I have completed a successful run of the example data
+----------------------------------------------------------------------------------------------
+
+## How to use scripts idea:
+I'm not sure how well this will work, but I could try to pull the scripts at all times from the GitHub so that I can either edit on a seperate interface, or just within GitHub to test UNIX code. 
