@@ -5,7 +5,7 @@
 #Uploaded to GitHub
 
 ## 0. Create a new Directory to put figures and plots into: ----
-setwd("C:\\Users\\hamis\\OneDrive\\Documents\\PhD\\R_Studio_Analyses\\Computational_Genomics_in_R")
+setwd("C:\\Users\\hamis\\OneDrive\\Documents\\PhD\\GitHub\\AER_RNA-seq")
 
 dir.create(file.path(getwd(),"figures")) ## Change name of "figures" to 
                                          ## your given choice name.
@@ -14,7 +14,7 @@ dir.create(file.path(getwd(),"figures")) ## Change name of "figures" to
 # Create list of packages needed:
 pkg_list<-c("tidyverse", "DESeq2", "tibble", "stats", "EDASeq",
             "ggplot2", "pheatmap", "dplyr", "tidyr", "ggfortify", "corrplot",
-            "gprofiler2", "knitr", "gProfileR", "gage", "RUVSeq")
+            "gprofiler2", "knitr", "gProfileR", "gage", "RUVSeq", "compGenomRData")
 
 # Build function...
 check_packages <- function(pkg_list) {
@@ -30,6 +30,7 @@ check_packages <- function(pkg_list) {
 }
 
 # Execute Function
+check_packages(pkg_list)
 check_packages(pkg_list)
 
 # Other packages which need to be forced
@@ -95,7 +96,7 @@ pheatmap(tpm[selectedGenes,], scale = 'row',
          show_rownames = FALSE, 
          annotation_col = colData)
 
-dev.copy(png, file = file.path(getwd(),"figures/heatmap_1.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/clustered_genes_heatmap.png"))
 dev.off()
 
 }
@@ -120,7 +121,7 @@ corrplot(correlationMatrix, order = 'hclust',
          addrect = 2, addCoef.col = 'white', 
          number.cex = 0.7) 
 
-dev.copy(png, file = file.path(getwd(),"figures/correlation_plot.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/correlation_plot.png"))
 dev.off()
 
 # Transforming the correlation plot into a heatmap figure
