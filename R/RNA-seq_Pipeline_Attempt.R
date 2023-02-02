@@ -170,7 +170,7 @@ DEresults <- DEresults[order(DEresults$pvalue),]
 # Most points will be on the horizontal 0 line as most genes are not
 # differentially expressed
 DESeq2::plotMA(object = dds, ylim = c(-5, 5))
-  dev.copy(png, file = file.path(getwd(),"figures/MA_plot.png"))
+  dev.copy(png, file = file.path(getwd(),"figures/example/MA_plot.png"))
   dev.off()
 }
 ## P-value distribution
@@ -182,7 +182,7 @@ DESeq2::plotMA(object = dds, ylim = c(-5, 5))
   {
   ggplot(data = as.data.frame(DEresults), aes(x = pvalue)) + 
     geom_histogram(bins = 100)
-  dev.copy(png, file = file.path(getwd(),"figures/PValue_Distribution.png"))
+  dev.copy(png, file = file.path(getwd(),"figures/example/PValue_Distribution.png"))
   dev.off()
   }
 }
@@ -215,7 +215,7 @@ DESeq2::plotMA(object = dds, ylim = c(-5, 5))
   rld <- rlog(dds)
   DESeq2::plotPCA(rld, ntop = 500, intgroup = 'group') + 
     ylim(-50, 50) + theme_bw()
-  dev.copy(png, file = file.path(getwd(),"figures/PCA_plot.png"))
+  dev.copy(png, file = file.path(getwd(),"figures/example/PCA_plot.png"))
   dev.off()
   }
 }
@@ -236,7 +236,7 @@ DESeq2::plotMA(object = dds, ylim = c(-5, 5))
             col = as.numeric(colData$group), 
             main = 'Normalized Counts')
     par(mfrow = c(1, 1))
-  dev.copy(png, file = file.path(getwd(),"figures/RLE_plot.png"))
+  dev.copy(png, file = file.path(getwd(),"figures/example/RLE_plot.png"))
   dev.off()
   }
 
@@ -364,7 +364,7 @@ pheatmap(log2(M+1),
          scale = 'row', 
          cutree_cols = 2, 
          cutree_rows = 2)
-dev.copy(png, file = file.path(getwd(),"figures/GSEA_Heatmap.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/GSEA_Heatmap.png"))
 dev.off()
 }
 }
@@ -408,7 +408,7 @@ pheatmap(tpm[selectedGenes,],
          annotation_col = colData, 
          show_rownames = FALSE)
 
-dev.copy(png, file = file.path(getwd(),"figures/Covariate_heatmap.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/Covariate_heatmap.png"))
 dev.off()
 # WE can see that library section variable is the dominating variable, rather
 # than the 'diagnostic variable'
@@ -465,7 +465,7 @@ pheatmap(tpm[selectedGenes,],
          annotation_col = colData, 
          cutree_cols = 2, 
          show_rownames = FALSE)
-dev.copy(png, file = file.path(getwd(),"figures/Unknown_Covariate_heatmap.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/Unknown_Covariate_heatmap.png"))
 dev.off()
 }
 # CASE_5 clusters more closely to the control samples. Could be the result of
@@ -490,7 +490,7 @@ par(mfrow = c(1,2))
 plotRLE(set, outline=FALSE, ylim=c(-4, 4), col=as.numeric(colData$group))
 plotPCA(set, col = as.numeric(colData$group), adj = 0.5, 
         ylim = c(-0.7, 0.5), xlim = c(-0.5, 0.5))
-dev.copy(png, file = file.path(getwd(),"figures/RLE_and_PCAPlot.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/RLE_and_PCAPlot.png"))
 dev.off()
 par(mfrow = c(1,1))
 }
@@ -501,7 +501,7 @@ par(mfrow = c(1,2))
 plotRLE(tpm, outline=FALSE, ylim=c(-4, 4), col=as.numeric(colData$group))
 plotPCA(tpm, col=as.numeric(colData$group), adj = 0.5, 
         ylim = c(-0.3, 1), xlim = c(-0.5, 0.5))
-dev.copy(png, file = file.path(getwd(),"figures/RLE_PCA_TPMMatrix.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/RLE_PCA_TPMMatrix.png"))
 dev.off()
 par(mfrow = c(1,1))
 }
@@ -541,7 +541,7 @@ for(k in 1:4) {
   plotPCA(set_g, col=as.numeric(colData$group), cex = 0.9, adj = 0.5, 
           main = paste0('with RUVg, k = ',k), 
           ylim = c(-1, 1), xlim = c(-1, 1), )
-  dev.copy(png, file = file.path(getwd(),"figures/RUVg_plot.png"))
+  dev.copy(png, file = file.path(getwd(),"figures/example/RUVg_plot.png"))
   dev.off()
   par(mfrow = c(1,1))
   
@@ -564,7 +564,7 @@ plotRLE(set, outline=FALSE, ylim=c(-4, 4),
         col=as.numeric(colData$group), main = 'without RUVg')
 plotRLE(set_g, outline=FALSE, ylim=c(-4, 4), 
         col=as.numeric(colData$group), main = 'with RUVg')
-dev.copy(png, file = file.path(getwd(),"figures/RLE_Adjusted.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/RLE_Adjusted.png"))
 dev.off()
 par(mfrow = c(1,1))
 }
@@ -578,7 +578,7 @@ plotPCA(set, col=as.numeric(colData$group), adj = 0.5,
 plotPCA(set_g, col=as.numeric(colData$group), adj = 0.5, 
         main = 'with RUVg',
         ylim = c(-1, 0.5), xlim = c(-0.5, 0.5))
-dev.copy(png, file = file.path(getwd(),"figures/PCA_adjusted.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/PCA_adjusted.png"))
 dev.off()
 par(mfrow = c(1,1))
 }
