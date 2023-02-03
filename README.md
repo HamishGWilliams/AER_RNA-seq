@@ -17,3 +17,5 @@ For most of the analysis performed, original code and information on how to perf
 I'm not 100% how this GitHub thing really works, so to anyone with access to thie repository, I ask that you don't edit any of the branhces without permission or prior dicussion of what you will do and/or change. Feel free to contirbute comments or suggestions on how to improve the code, or ask questions about specigic parts - I will do my best to explain to the best of my ability, I'm still learning too!
 
 This README page will likely change in the future as I get more comfortable and fimilar with GitHub and its tools and expectations. 
+
+# Checking if this has worked
