@@ -43,8 +43,11 @@ Packages available from Maxwell [as of 7/2/23]:
 Now we need to download the following packages from the directory:
 1. HISAT2/<latest version> [2.2.1 in this example - 07/02/23]: "http://daehwankimlab.github.io/hisat2/download/"
 
-## HISAT2 install
-```{HISAT2 download}
+# HISAT2 
+HISAT2/2.2.1 is the main function and set of commands that will be used to align the two read data files to a reference genome. For this analyses, I chose to download the latest version on binary from the HISAT2 GitHub [found here: https://github.com/DaehwanKimLab/hisat2.git], using the $ git clone command.
+
+## Install
+```{linux HISAT2 download}
 $ module load git/2.35.5
 
 # -------------- Shell Script $
@@ -59,14 +62,15 @@ $ make
 $ cd
 $ cp ./hisat2/hisat2* ./hisat2/*.py $HOME/bin
  
-$ echo "HISAT2 packages installed nd moved to $PATH/bin"
+ 
+echo "HISAT2 packages installed nd moved to $PATH/bin"
 ```
 
 
-## HISAT2 Index compilation
+## Index compilation
 Before we begin our alignment, we need to generate an index of our genome, with exons and splice sites for aligning our reads too:
 
-```{HISAT2 Indexing}
+```{linux HISAT2 Indexing}
 #!/bin/bash
 
 #SBATCH --job-name=indexing
@@ -100,7 +104,7 @@ To summaries:
 - Built an index using these extracted files, outputing our results in files prefixed by A_Equina_tran*
 - Moved the output files to a specific indexes directory.
 
-## HISAT Alignment
+## Alignment
 The following is the script I used to complete the HISAT2 alignment. This will be saved separate in a .txt file in the ~/UNIX/scripts directory on the repository. The Basic outline is as follows:
 
 1. Name the Job being submitted
@@ -114,7 +118,7 @@ The following is the script I used to complete the HISAT2 alignment. This will b
 7. Generate a loop function which will for every 'SAMPLE' in '$SAMPLES' run the command specified.
 
 
-```{HISAT2 Alignment}
+```{linux Alignment Script}
 #!/bin/bash
 
 #SBATCH --job-name=alignment
@@ -134,5 +138,7 @@ done
 
 *I'm not sure what is a good amount of memory and nodes to assign to a job. I should consult Marius or people in the office to decide on what amount of power is appropriate for what size job and the urgency of the results*
 
-This script is specifying to run an alignment of the paired fastq.gz files for a smaple to a HISAT2 generated index. From here, we can then transform the files to .bam using **SamTools** for reading into **FeaturesCounts**.
+This script is specifying to run an alignment of the paired fastq.gz files for a smaple to a HISAT2 generated index. From here, we can then move onto using  **FeaturesCounts** to count the read data.
+
+# FeatureCounts
 
