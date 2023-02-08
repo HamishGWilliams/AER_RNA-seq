@@ -47,6 +47,7 @@ counts_file <- system.file("extdata/rna-seq/SRP029880.raw_counts.tsv",
                            #!! Replace the file path to YOUR file Path 
                            package = "compGenomRData")
 counts <- as.matrix(read.table(counts_file, header = T, sep = '\t'))
+counts <- as.matrix(read.table("data/example/SRP029880.raw_counts.tsv", header = T, sep = '\t'))
 
 
 ## 3. Calculate CPM -> geneLengths -> rpkm -> rpk -> TPM -> V (variance) ----
