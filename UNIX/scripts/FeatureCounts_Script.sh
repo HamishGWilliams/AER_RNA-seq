@@ -14,7 +14,6 @@ featureCounts -p -g 'ID' -t exon -O -a genes/A_Equina.gff3 -o A_Equina_featureCo
 
 echo "Counts read!"
 
-
 ### Options used:
 # -p: If specified, libraries are assumed to contain paired-end
                      # reads. For any library that contains paired-end reads, the
