@@ -138,7 +138,66 @@ done
 
 *I'm not sure what is a good amount of memory and nodes to assign to a job. I should consult Marius or people in the office to decide on what amount of power is appropriate for what size job and the urgency of the results*
 
-This script is specifying to run an alignment of the paired fastq.gz files for a smaple to a HISAT2 generated index. From here, we can then move onto using  **FeaturesCounts** to count the read data.
+The total run time with the given specification was ~11 hours. This script ran >110GB of sample data.
+
+This script is specifying to run an alignment of the paired fastq.gz files for a sample to a HISAT2 generated index. From here, we can then move onto using  **FeatureCounts** to count the read data.
 
 # FeatureCounts
 
+FeatureCounts command is part of the **Subread** package, which also has an R equivalent named **RSubread**. Since the data we are dealing with is quite large, its more efficient to run this part of data collection in Maxwell to the SLURM queue. The module can easily be loaded by first asking Maxwell for the latest available version in the module **$ module spider subread**, then loading the packing in: **$ module load subread/<version>**. The version used in this analyses was subread/2.0.2 [09/02/23].
+
+There are many different options you can choose from when it comes to FeatureCounts. It's important to carefully read through all of the options to choose from and specifying the ones you need. I'm still not an expert, but I was able to choose a collection of options which were explained from various online resources which can easily be found by searching for featurecounts or subread on search engines. Some of these online resources included:
+
+- https://rpubs.com/adoughan/778146
+- https://h3abionet.github.io/H3ABionet-SOPs/RNA-Seq#protocol-2
+- https://www.reddit.com/r/bioinformatics/comments/hsj2hc/multiple_bam_files_into_featurecounts/
+- https://www.ensembl.org/info/website/upload/gff3.html
+- http://gmod.org/wiki/GFF3#Alignments
+- https://rpubs.com/adoughan/778146
+- https://github.com/rnnh/bioinfo-notebook/blob/master/docs/featureCounts.md
+- https://bioconductor.org/packages/release/bioc/vignettes/Rsubread/inst/doc/SubreadUsersGuide.pdf
+
+## The options specific in my script are as follows:
+- -p: If specified, libraries are assumed to contain paired-end
+                      reads. For any library that contains paired-end reads, the
+                      'countReadPairs' parameter controls if read pairs or reads
+                      should be counted.
+                      
+                      - I chose this option because I had an error which said that I was trying to match pair-end reads against a single-end library.
+                    
+- -g:  Specify attribute type in GTF annotation. 'gene_id' by
+                      default. Meta-features used for read counting will be
+                      extracted from annotation using the provided value.
+
+                      - 'Parent' should be specified.
+
+- -t: Specify feature type(s) in a GTF annotation. If multiple
+                      types are provided, they should be separated by ',' with
+                      no space in between. 'exon' by default. Rows in the
+                      annotation with a matched feature will be extracted and
+                      used for read mapping.
+                      
+- -O: Assign reads to all their overlapping meta-features (or
+                      features if -f is specified)
+                      
+                      
+## Script
+The following is the script used to perform the counts of the .bam files:
+
+```{linux FeatureCounts}
+#!/bin/bash
+
+#SBATCH --job-name=FeatureCounts
+#SBATCH -c 8
+#SBATCH --mem 32G
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=r02hw22@abdn.ac.uk
+
+echo "running FeatureCounts will all .bam files"
+
+module load subread/2.0.2
+
+featureCounts -p -g 'ID' -t exon -O -a genes/A_Equina.gff3 -o A_Equina_featureCounts_output.txt *.bam
+
+echo "Counts read!"
+```
