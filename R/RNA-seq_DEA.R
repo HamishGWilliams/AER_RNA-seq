@@ -28,7 +28,6 @@ check_packages <- function(pkg_list) {
     }
   }
 }
-
 # Execute Function
 check_packages(pkg_list)
 check_packages(pkg_list)
