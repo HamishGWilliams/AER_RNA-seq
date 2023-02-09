@@ -3,7 +3,6 @@
 # Load Packages needed
 module load python/3.9.12/
 
-
 # Constructing Reference Index
 
 ## Extract splice sites:
