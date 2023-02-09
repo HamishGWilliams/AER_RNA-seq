@@ -10,7 +10,7 @@ This folder will contain all of the relevant UNIX scripts which are generated fo
 The script components should be ran in the following order:
 1. **Index_Assembly**
   - Generate an index of the reference genome, marking the *Splice Sites* and *Exons*.
-2. **HISAT"_align**
+2. **HISAT2_align**
   - Align the sample data to a reference genome (.gff3 file). Generates .sam files
   - Converts .sam files -> .bam files
   - sorts .bam files
