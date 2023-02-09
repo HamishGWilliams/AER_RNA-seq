@@ -146,7 +146,7 @@ This script is specifying to run an alignment of the paired fastq.gz files for a
 
 FeatureCounts command is part of the **Subread** package, which also has an R equivalent named **RSubread**. Since the data we are dealing with is quite large, its more efficient to run this part of data collection in Maxwell to the SLURM queue. The module can easily be loaded by first asking Maxwell for the latest available version in the module **$ module spider subread**, then loading the packing in: **$ module load subread/<version>**. The version used in this analyses was subread/2.0.2 [09/02/23].
 
-There are many different options you can choose from when it comes to FeatureCounts. It's important to carefully read through all of the options to choose from and specifying the ones you need. I'm still not an expert, but I was able to choose a collection of options which were explained from various online resources which can easily be found by searching for featurecounts or subread on search engines. Some of these online resources included:
+There are many different options you can choose from when it comes to FeatureCounts. It's important to carefully read through all of the options to choose from and specifying the ones you need. I'm still not an expert, but I was able to choose a collection of options which were explained from various online resources which caneasily be found by searching for featurecounts or subread on search engines. Some of these online resources included:
 
 - https://rpubs.com/adoughan/778146
 - https://h3abionet.github.io/H3ABionet-SOPs/RNA-Seq#protocol-2
@@ -201,3 +201,15 @@ featureCounts -p -g 'ID' -t exon -O -a genes/A_Equina.gff3 -o A_Equina_featureCo
 
 echo "Counts read!"
 ```
+
+This coding and options hasn't seemed to work, in the "A_Equina_featureCounts_output.txt.summary file, none of the reads have been assigned, and are distributed in the unassigned categories:
+- Unassigned_Unmapped
+- Unassigned_MultiMapping
+- Unassigned_NoFeatures
+
+
+# Update [09/02/23 - 15:47]
+I have been stduggling to get the featureCounts command to work for my data, it keeps coming back stating that there was 0% reads aligned to the library genome. So, I went back to systematically go through all of the previous steps an components to see if something went wrong. I found that my .exon and .ss files had no data in them. On further investigation, I found that the python codes are not compatible with .gff3 data files. I found a command named **gffreads**, which allowed me to convert the .gff3 genome data into a .gtf format, which ran successfully, producing outputs with data in them for both annotation files. 
+
+Now I am working through the Indexing command again throuhg SLURM queueing, which should hopefully make a proper index with annotation for both exnos and splice sites in it. With this, I should be able to run through all of the previous steps to generate data which will allow aligning to the .gtf file genome. 
+
