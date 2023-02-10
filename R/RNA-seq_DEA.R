@@ -28,6 +28,12 @@ check_packages <- function(pkg_list) {
     }
   }
 }
+
+# Having issues with Rtools installation
+library("devtools")
+find_rtools(T)
+# Need to install Rtools42, compatible with R 4.2.1
+
 # Execute Function
 check_packages(pkg_list)
 check_packages(pkg_list)
