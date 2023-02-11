@@ -313,8 +313,8 @@ goResults <- gprofiler(query = genesOfInterest,
                        src_filter = 'GO', 
                        hier_filtering = 'moderate')
 
-## gprofiler2 Package - not included in guid:
-#calculate enriched GO terms
+## gprofiler2 Package - not included in guide:
+# calculate enriched GO terms
 goResults2 <- gost(query = genesOfInterest, 
                  organism = "hsapiens", ordered_query = FALSE, 
                  multi_query = FALSE, significant = TRUE, exclude_iea = FALSE, 
