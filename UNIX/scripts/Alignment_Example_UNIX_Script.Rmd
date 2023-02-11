@@ -1,0 +1,280 @@
+---
+title: "Alignment_Example_UNIX_Script"
+author: "Hamish Williams"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Overveiw
+This script will contain all of the UNIX script used in Maxwell from the example
+coding from "https://www.nature.com/articles/nprot.2016.095".
+
+I'm making a personal record about how to use this script, any ammenments which 
+were required to be made, and explainng each component and part as best as I can
+for my own personal use, and to explain to others how this specific sequence of 
+package use on the example data works.
+
+The main purpose of this is to better understand how this script works, as well
+as how alingment and preparation of read/coverage data of transcripts is 
+processed, so that I can more easily perform this analysis with my own data.
+
+# Specifying a new directory into your $PATH
+A number of the specific packages that we use for this analysis are not the 
+exact same version which are used in the paper, nor are all of the packages 
+on Maxwell for loading using the command:
+
+$ module load <package>
+
+There are a couple of options which we can take to resolve this issue:
+1. Email the Maxwell email: Digital Research <digitalresearch@abdn.ac.uk>
+  - Ask them to install the specific packages used for the analysis 
+  (listed later)
+2. OR, you can simply go to the relevant websites to download the latest binary 
+version, and unpack the commands into a new $PATH directory
+
+For this second option, you need to first create a new directory. I would 
+recommend making this in your "$HOME environment"
+  - You can use $ cd to go directly to this environment
+  
+Once in the $HOME environment, make a new dirctory named "bin":
+**$ mkdir ./bin/**
+
+Now specify this new directory to your $PATH:
+
+```{linux new $PATH}
+$ export PATH="$HOME/bin:$PATH"
+```
+
+## Downloading packages from Binary
+Packages available from Maxwell [as of 7/2/23]:
+1. samtools/1.9
+2. HISAT2/2.2.0
+
+
+Now we need to download the following packages from the directory:
+1. HISAT2/<latest version> [2.2.1 in this example - 07/02/23]: 
+"http://daehwankimlab.github.io/hisat2/download/"
+
+# HISAT2 
+HISAT2/2.2.1 is the main function and set of commands that will be used to 
+align the two read data files to a reference genome. For this analyses, I chose 
+to download the latest version on binary from the HISAT2 GitHub [found here: 
+https://github.com/DaehwanKimLab/hisat2.git], using the $ git clone command.
+
+## Install
+```{linux HISAT2 download}
+$ module load git/2.35.5
+
+# -------------- Shell Script $
+
+#!/bin/bash
+
+$ git clone https://github.com/DaehwanKimLab/hisat2.git
+$ cd hisat2
+$ make
+
+# Move commands to the $bin PATH
+$ cd
+$ cp ./hisat2/hisat2* ./hisat2/*.py $HOME/bin
+ 
+ 
+echo "HISAT2 packages installed nd moved to $PATH/bin"
+```
+
+
+## Index compilation
+Before we begin our alignment, we need to generate an index of our genome, with 
+exons and splice sites for aligning our reads too:
+
+```{linux HISAT2 Indexing}
+#!/bin/bash
+
+#SBATCH --job-name=indexing
+#SBATCH --mem-per-cpu=1000
+#SBATCH --nodes=1
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=r02hw22@abdn.ac.uk
+
+$ echo "Creating a HISAT2 Index for example data"
+
+# Load in package
+
+$ module load python/3.9.12/
+
+# Extract Splice sites & exon locations:
+$ extract_splice_sites.py ./genes/A_Equina.gff3 >A_Equina.ss
+$ extract_exons.py ./genes/A_Equina.gff3 >A_Equina.exon
+
+# Second, build the HISAT2 index:
+$ hisat2-build --ss ./genes/A_Equina.gff3.ss --exon ./genes/A_Equina.gff3.exon 
+./RefGenome/A_Equina_RefGenome.fa A_Equina_tran
+
+# Move the output files to a specific Indexes directory;
+$ mkdir ./indexes
+$ mv ./A_Equina_tran* ./indexes
+```
+
+To summaries:
+- We first input out SLURM specifications for the job
+- loaded the python package to read the python scripts from HISAT2/2.2.1
+- Extracted the Splice Sites and Exon Locations
+- Built an index using these extracted files, outputing our results in files 
+prefixed by A_Equina_tran*
+- Moved the output files to a specific indexes directory.
+
+## Alignment
+The following is the script I used to complete the HISAT2 alignment. This will 
+be saved separate in a .txt file in the ~/UNIX/scripts directory on the 
+repository. The Basic outline is as follows:
+
+1. Name the Job being submitted
+2. Specify memory per cpu to allocate to job (1GB)
+3. Number of Nodes to use (1)
+4. Email when finished
+5. -> to this email
+
+6. Create object with the ID names of each sample
+
+7. Generate a loop function which will for every 'SAMPLE' in '$SAMPLES' run the 
+command specified.
+
+
+```{linux Alignment Script}
+#!/bin/bash
+
+#SBATCH --job-name=alignment
+#SBATCH --mem-per-cpu=1000
+#SBATCH --nodes=1
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=r02hw22@abdn.ac.uk
+
+$ SAMPLES="1-1 1-19 2-20 3-21 4-2 4-22 5-3 6-4 6-23 7-5 7-24 8-6 9-7 9-25 10-8 
+10-26 11-9 11-27 12-10 12-28 14-11 15-12 16-13 18-14 19-15 20-16 21-17 24-18"
+
+for SAMPLE in $SAMPLES; do
+        hisat2 -t -p 8 -x indexes/A_Equina_tran -1 samples/${SAMPLE}_1.fastq.gz>
+        samtools sort -@ 8 -o ${SAMPLE}.bam ${SAMPLE}.sam
+        rm ${SAMPLE}.sam
+done
+```
+
+I'm not sure what is a good amount of memory and nodes to assign to a job. I 
+should consult Marius or people in the office to decide on what amount of power 
+is appropriate for what size job and the urgency of the results
+
+The total run time with the given specification was ~11 hours. This script ran 
+more than 110GB of sample data.
+
+This script is specifying to run an alignment of the paired fastq.gz files for 
+a sample to a HISAT2 generated index. From here, we can then move onto using  
+**FeatureCounts** to count the read data.
+
+# FeatureCounts
+
+FeatureCounts command is part of the **Subread** package, which also has an R 
+equivalent named **RSubread**. Since the data we are dealing with is quite 
+large, its more efficient to run this part of data collection in Maxwell to the 
+SLURM queue. The module can easily be loaded by first asking Maxwell for the 
+latest available version in the module **$ module spider subread**, then loading
+the packing in: **$ module load subread/<version>**. The version used in this 
+analyses was subread/2.0.2 [09/02/23].
+
+There are many different options you can choose from when it comes to 
+FeatureCounts. It's important to carefully read through all of the options to 
+choose from and specifying the ones you need. I'm still not an expert, but I 
+was able to choose a collection of options which were explained from various 
+online resources which caneasily be found by searching for featurecounts or 
+subread on search engines. Some of these online resources included:
+
+- https://rpubs.com/adoughan/778146
+- https://h3abionet.github.io/H3ABionet-SOPs/RNA-Seq#protocol-2
+- https://www.reddit.com/r/bioinformatics/comments/hsj2hc/multiple_bam_files_into_featurecounts/
+- https://www.ensembl.org/info/website/upload/gff3.html
+- http://gmod.org/wiki/GFF3#Alignments
+- https://rpubs.com/adoughan/778146
+- https://github.com/rnnh/bioinfo-notebook/blob/master/docs/featureCounts.md
+- https://bioconductor.org/packages/release/bioc/vignettes/Rsubread/inst/doc/SubreadUsersGuide.pdf
+
+## The options specific in my script are as follows:
+- -p: If specified, libraries are assumed to contain paired-end
+                      reads. For any library that contains paired-end reads, the
+                      'countReadPairs' parameter controls if read pairs or reads
+                      should be counted.
+                      
+                      - I chose this option because I had an error which said 
+                      that I was trying to match pair-end reads against a 
+                      single-end library.
+                    
+- -g:  Specify attribute type in GTF annotation. 'gene_id' by
+                      default. Meta-features used for read counting will be
+                      extracted from annotation using the provided value.
+
+                      - 'Parent' should be specified.
+
+- -t: Specify feature type(s) in a GTF annotation. If multiple
+                      types are provided, they should be separated by ',' with
+                      no space in between. 'exon' by default. Rows in the
+                      annotation with a matched feature will be extracted and
+                      used for read mapping.
+                      
+- -O: Assign reads to all their overlapping meta-features (or
+                      features if -f is specified)
+                      
+                      
+## Script
+The following is the script used to perform the counts of the .bam files:
+
+```{linux FeatureCounts}
+#!/bin/bash
+
+#SBATCH --job-name=FeatureCounts
+#SBATCH -c 8
+#SBATCH --mem 32G
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=r02hw22@abdn.ac.uk
+
+echo "running FeatureCounts will all .bam files"
+
+module load subread/2.0.2
+
+featureCounts -p -g 'ID' -t exon -O -a genes/A_Equina.gff3 -o 
+  A_Equina_featureCounts_output.txt *.bam
+
+echo "Counts read!"
+```
+
+This coding and options hasn't seemed to work, in the 
+"A_Equina_featureCounts_output.txt.summary file, none of the reads have been 
+assigned, and are distributed in the unassigned categories:
+- Unassigned_Unmapped
+- Unassigned_MultiMapping
+- Unassigned_NoFeatures
+
+
+# Update [09/02/23 - 15:47]
+I have been stduggling to get the featureCounts command to work for my data, it 
+keeps coming back stating that there was 0% reads aligned to the library genome.
+So, I went back to systematically go through all of the previous steps an 
+components to see if something went wrong. I found that my .exon and .ss files 
+had no data in them. On further investigation, I found that the python codes are
+not compatible with .gff3 data files. I found a command named **gffreads**, 
+which allowed me to convert the .gff3 genome data into a .gtf format, which ran 
+successfully, producing outputs with data in them for both annotation files. 
+
+Now I am working through the Indexing command again throuhg SLURM queueing, 
+which should hopefully make a proper index with annotation for both exnos and 
+splice sites in it. With this, I should be able to run through all of the 
+previous steps to generate data which will allow aligning to the .gtf file genome. 
+
+# Update [10/02/23]
+It's the morning after yesterday's realization and continued issues. Converting 
+the file to .gtf format did not help with the issues of counting the aligned 
+read data. I then emailed Marius details of the issues I've been having ahead of
+our meeting on the 14th. He agreed that it seemed like there is an issue with 
+the name matching, and brought up the .fa genome file. I hadn't even considered 
+this previously. So the .fa file which I had downloaded from the Ensembl 
+website, which likely doesn't match the formatting and naming from the .gff3 
+file pulled from this website: http://aequ.reefgenomics.org/download/. So now 
+I have downloaded the Genome scaffold .fa.gz file, unzipped it, built a scaffold 
+with it, and running a test alignment with sample 1-1 to see if this can resolve 
+the fatureCounts non-counting and unassignment of features.

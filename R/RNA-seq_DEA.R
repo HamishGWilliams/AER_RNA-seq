@@ -7,11 +7,8 @@
 ## 0. Create a new Directory to put figures and plots into: ----
 setwd("C:\\Users\\hamis\\OneDrive\\Documents\\PhD\\GitHub\\AER_RNA-seq")
 
-dir.create(file.path(getwd(),"figures")) ## Make figures folder
-dir.create(file.path("figures","example")) ## make example folder
-dir.create(file.path("figures/example","png_plots")) ## make folder for pngs
-dir.create(file.path("figures/example","svg_plots")) ## make folder for svgs
-
+dir.create(file.path(getwd(),"figures")) ## Change name of "figures" to 
+                                         ## your given choice name.
 
 ## 1. Check if package is installed, and will install + Loads packages ----
 # Create list of packages needed:
@@ -32,6 +29,11 @@ check_packages <- function(pkg_list) {
   }
 }
 
+# Having issues with Rtools installation
+library("devtools")
+find_rtools(T)
+# Need to install Rtools42, compatible with R 4.2.1
+
 # Execute Function
 check_packages(pkg_list)
 check_packages(pkg_list)
@@ -50,6 +52,7 @@ counts_file <- system.file("extdata/rna-seq/SRP029880.raw_counts.tsv",
                            #!! Replace the file path to YOUR file Path 
                            package = "compGenomRData")
 counts <- as.matrix(read.table(counts_file, header = T, sep = '\t'))
+counts <- as.matrix(read.table("data/example/SRP029880.raw_counts.tsv", header = T, sep = '\t'))
 
 
 ## 3. Calculate CPM -> geneLengths -> rpkm -> rpk -> TPM -> V (variance) ----
@@ -99,10 +102,10 @@ pheatmap(tpm[selectedGenes,], scale = 'row',
          show_rownames = FALSE, 
          annotation_col = colData)
 
-dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/clustered_genes_heatmap.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/clustered_genes_heatmap.png"))
 dev.off()
 
-dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/clustered_genes_heatmap.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/clustered_genes_heatmap.svg"))
 dev.off()
 }
 ## PCA plot
@@ -126,10 +129,10 @@ corrplot(correlationMatrix, order = 'hclust',
          addrect = 2, addCoef.col = 'white', 
          number.cex = 0.7) 
 
-dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/correlation_plot.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/correlation_plot.png"))
 dev.off()
 
-dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/correlation_plot.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/correlation_plot.svg"))
 dev.off()
 
 # Transforming the correlation plot into a heatmap figure
@@ -138,10 +141,10 @@ pheatmap(correlationMatrix,
          annotation_col = colData, 
          cutree_cols = 2)
 
-dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/corr_heatmap.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/corr_heatmap.png"))
 dev.off()
 
-dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/corr_heatmap.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/corr_heatmap.svg"))
 dev.off()
 }
 
@@ -181,9 +184,9 @@ DEresults <- DEresults[order(DEresults$pvalue),]
 # Most points will be on the horizontal 0 line as most genes are not
 # differentially expressed
 DESeq2::plotMA(object = dds, ylim = c(-5, 5))
-  dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/MA_plot.png"))
+  dev.copy(png, file = file.path(getwd(),"figures/example/MA_plot.png"))
   dev.off()
-  dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/MA_plot.svg"))
+  dev.copy(svg, file = file.path(getwd(),"figures/example/MA_plot.svg"))
   dev.off()
 }
 ## P-value distribution
@@ -195,9 +198,9 @@ DESeq2::plotMA(object = dds, ylim = c(-5, 5))
   {
   ggplot(data = as.data.frame(DEresults), aes(x = pvalue)) + 
     geom_histogram(bins = 100)
-  dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/PValue_Distribution.png"))
+  dev.copy(png, file = file.path(getwd(),"figures/example/PValue_Distribution.png"))
   dev.off()
-  dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/PValue_Distribution.svg"))
+  dev.copy(svg, file = file.path(getwd(),"figures/example/PValue_Distribution.svg"))
   dev.off()
   }
 }
@@ -230,9 +233,9 @@ DESeq2::plotMA(object = dds, ylim = c(-5, 5))
   rld <- rlog(dds)
   DESeq2::plotPCA(rld, ntop = 500, intgroup = 'group') + 
     ylim(-50, 50) + theme_bw()
-  dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/PCA_plot.png"))
+  dev.copy(png, file = file.path(getwd(),"figures/example/PCA_plot.png"))
   dev.off()
-  dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/PCA_plot.svg"))
+  dev.copy(svg, file = file.path(getwd(),"figures/example/PCA_plot.svg"))
   dev.off()
   }
 }
@@ -253,9 +256,9 @@ DESeq2::plotMA(object = dds, ylim = c(-5, 5))
             col = as.numeric(colData$group), 
             main = 'Normalized Counts')
     par(mfrow = c(1, 1))
-  dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/RLE_plot.png"))
+  dev.copy(png, file = file.path(getwd(),"figures/example/RLE_plot.png"))
   dev.off()
-  dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/RLE_plot.svg"))
+  dev.copy(svg, file = file.path(getwd(),"figures/example/RLE_plot.svg"))
   dev.off()
   }
 
@@ -383,9 +386,9 @@ pheatmap(log2(M+1),
          scale = 'row', 
          cutree_cols = 2, 
          cutree_rows = 2)
-dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/GSEA_Heatmap.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/GSEA_Heatmap.png"))
 dev.off()
-dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/GSEA_Heatmap.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/GSEA_Heatmap.svg"))
 dev.off()
 }
 }
@@ -429,9 +432,9 @@ pheatmap(tpm[selectedGenes,],
          annotation_col = colData, 
          show_rownames = FALSE)
 
-dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/Covariate_heatmap.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/Covariate_heatmap.png"))
 dev.off()
-dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/Covariate_heatmap.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/Covariate_heatmap.svg"))
 dev.off()
 # WE can see that library section variable is the dominating variable, rather
 # than the 'diagnostic variable'
@@ -488,9 +491,9 @@ pheatmap(tpm[selectedGenes,],
          annotation_col = colData, 
          cutree_cols = 2, 
          show_rownames = FALSE)
-dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/Unknown_Covariate_heatmap.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/Unknown_Covariate_heatmap.png"))
 dev.off()
-dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/Unknown_Covariate_heatmap.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/Unknown_Covariate_heatmap.svg"))
 dev.off()
 }
 # CASE_5 clusters more closely to the control samples. Could be the result of
@@ -515,9 +518,9 @@ par(mfrow = c(1,2))
 plotRLE(set, outline=FALSE, ylim=c(-4, 4), col=as.numeric(colData$group))
 plotPCA(set, col = as.numeric(colData$group), adj = 0.5, 
         ylim = c(-0.7, 0.5), xlim = c(-0.5, 0.5))
-dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/RLE_and_PCAPlot.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/RLE_and_PCAPlot.png"))
 dev.off()
-dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/RLE_and_PCAPlot.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/RLE_and_PCAPlot.svg"))
 dev.off()
 par(mfrow = c(1,1))
 }
@@ -528,16 +531,16 @@ par(mfrow = c(1,2))
 plotRLE(tpm, outline=FALSE, ylim=c(-4, 4), col=as.numeric(colData$group))
 plotPCA(tpm, col=as.numeric(colData$group), adj = 0.5, 
         ylim = c(-0.3, 1), xlim = c(-0.5, 0.5))
-dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/RLE_PCA_TPMMatrix.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/RLE_PCA_TPMMatrix.png"))
 dev.off()
-dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/RLE_PCA_TPMMatrix.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/RLE_PCA_TPMMatrix.svg"))
 dev.off()
 par(mfrow = c(1,1))
 }
 
 # Both RLE and PCA plots look better on normalized data, but still suggests the 
 # necessity to further improvement, since case_5 sample still clusters with the
-# control samples. We haven't yet accounted for the source of the variation.
+# conrol samples. We haven't yet accounted for the source of the variation.
 
 ## Removing unwanted variation from the data
 
@@ -570,9 +573,9 @@ for(k in 1:4) {
   plotPCA(set_g, col=as.numeric(colData$group), cex = 0.9, adj = 0.5, 
           main = paste0('with RUVg, k = ',k), 
           ylim = c(-1, 1), xlim = c(-1, 1), )
-  dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/RUVg_plot.png"))
+  dev.copy(png, file = file.path(getwd(),"figures/example/RUVg_plot.png"))
   dev.off()
-  dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/RUVg_plot.svg"))
+  dev.copy(svg, file = file.path(getwd(),"figures/example/RUVg_plot.svg"))
   dev.off()
   par(mfrow = c(1,1))
   
@@ -595,9 +598,9 @@ plotRLE(set, outline=FALSE, ylim=c(-4, 4),
         col=as.numeric(colData$group), main = 'without RUVg')
 plotRLE(set_g, outline=FALSE, ylim=c(-4, 4), 
         col=as.numeric(colData$group), main = 'with RUVg')
-dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/RLE_Adjusted.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/RLE_Adjusted.png"))
 dev.off()
-dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/RLE_Adjusted.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/RLE_Adjusted.svg"))
 dev.off()
 par(mfrow = c(1,1))
 }
@@ -611,9 +614,9 @@ plotPCA(set, col=as.numeric(colData$group), adj = 0.5,
 plotPCA(set_g, col=as.numeric(colData$group), adj = 0.5, 
         main = 'with RUVg',
         ylim = c(-1, 0.5), xlim = c(-0.5, 0.5))
-dev.copy(png, file = file.path(getwd(),"figures/example/png_plots/PCA_adjusted.png"))
+dev.copy(png, file = file.path(getwd(),"figures/example/PCA_adjusted.png"))
 dev.off()
-dev.copy(svg, file = file.path(getwd(),"figures/example/svg_plots/PCA_adjusted.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/PCA_adjusted.svg"))
 dev.off()
 par(mfrow = c(1,1))
 }
