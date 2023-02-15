@@ -1,0 +1,298 @@
+running FeatureCounts for all .bam files...
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	  v2.0.2
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 28 BAM files                                     ||
+||                                                                            ||
+||                           10-26.bam                                        ||
+||                           10-8.bam                                         ||
+||                           11-27.bam                                        ||
+||                           1-19.bam                                         ||
+||                           11-9.bam                                         ||
+||                           1-1.bam                                          ||
+||                           12-10.bam                                        ||
+||                           12-28.bam                                        ||
+||                           14-11.bam                                        ||
+||                           15-12.bam                                        ||
+||                           16-13.bam                                        ||
+||                           18-14.bam                                        ||
+||                           19-15.bam                                        ||
+||                           20-16.bam                                        ||
+||                           21-17.bam                                        ||
+||                           2-20.bam                                         ||
+||                           24-18.bam                                        ||
+||                           3-21.bam                                         ||
+||                           4-22.bam                                         ||
+||                           4-2.bam                                          ||
+||                           5-3.bam                                          ||
+||                           6-23.bam                                         ||
+||                           6-4.bam                                          ||
+||                           7-24.bam                                         ||
+||                           7-5.bam                                          ||
+||                           8-6.bam                                          ||
+||                           9-25.bam                                         ||
+||                           9-7.bam                                          ||
+||                                                                            ||
+||             Output file : A_Equina_Counts.txt                              ||
+||                 Summary : A_Equina_Counts.txt.summary                      ||
+||              Paired-end : yes                                              ||
+||        Count read pairs : no                                               ||
+||              Annotation : A_Equina.gtf (GTF)                               ||
+||      Dir for temp files : ./                                               ||
+||                                                                            ||
+||                 Threads : 16                                               ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : counted                                          ||
+|| Multi-overlapping reads : not counted                                      ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file A_Equina.gtf ...                                      ||
+||    Features : 383432                                                       ||
+||    Meta-features : 55651                                                   ||
+||    Chromosomes/contigs : 1480                                              ||
+||                                                                            ||
+|| Process BAM file 10-26.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 94040662                                             ||
+||    Successfully assigned alignments : 56892314 (60.5%)                     ||
+||    Running time : 0.39 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 10-8.bam...                                               ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 44479324                                             ||
+||    Successfully assigned alignments : 28015419 (63.0%)                     ||
+||    Running time : 0.19 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 11-27.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 91891966                                             ||
+||    Successfully assigned alignments : 55286096 (60.2%)                     ||
+||    Running time : 0.39 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 1-19.bam...                                               ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 115207956                                            ||
+||    Successfully assigned alignments : 68159737 (59.2%)                     ||
+||    Running time : 0.47 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 11-9.bam...                                               ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 65518272                                             ||
+||    Successfully assigned alignments : 39074813 (59.6%)                     ||
+||    Running time : 0.28 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 1-1.bam...                                                ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 63984128                                             ||
+||    Successfully assigned alignments : 39289295 (61.4%)                     ||
+||    Running time : 0.28 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 12-10.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 67042895                                             ||
+||    Successfully assigned alignments : 38963928 (58.1%)                     ||
+||    Running time : 0.30 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 12-28.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 113689806                                            ||
+||    Successfully assigned alignments : 70012770 (61.6%)                     ||
+||    Running time : 0.46 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 14-11.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 55985595                                             ||
+||    Successfully assigned alignments : 32941964 (58.8%)                     ||
+||    Running time : 0.24 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 15-12.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 61363608                                             ||
+||    Successfully assigned alignments : 37433153 (61.0%)                     ||
+||    Running time : 0.26 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 16-13.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 50501658                                             ||
+||    Successfully assigned alignments : 31196448 (61.8%)                     ||
+||    Running time : 0.22 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 18-14.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 58884230                                             ||
+||    Successfully assigned alignments : 35348067 (60.0%)                     ||
+||    Running time : 0.25 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 19-15.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 69901495                                             ||
+||    Successfully assigned alignments : 41690877 (59.6%)                     ||
+||    Running time : 0.29 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 20-16.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 59476825                                             ||
+||    Successfully assigned alignments : 37369689 (62.8%)                     ||
+||    Running time : 0.25 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 21-17.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 64846326                                             ||
+||    Successfully assigned alignments : 42438511 (65.4%)                     ||
+||    Running time : 0.27 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 2-20.bam...                                               ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 124846643                                            ||
+||    Successfully assigned alignments : 74134577 (59.4%)                     ||
+||    Running time : 0.52 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 24-18.bam...                                              ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 61989020                                             ||
+||    Successfully assigned alignments : 37906760 (61.2%)                     ||
+||    Running time : 0.26 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 3-21.bam...                                               ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 109550865                                            ||
+||    Successfully assigned alignments : 68595455 (62.6%)                     ||
+||    Running time : 0.44 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 4-22.bam...                                               ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 102555052                                            ||
+||    Successfully assigned alignments : 65024880 (63.4%)                     ||
+||    Running time : 0.42 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 4-2.bam...                                                ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 69445526                                             ||
+||    Successfully assigned alignments : 41488459 (59.7%)                     ||
+||    Running time : 0.29 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 5-3.bam...                                                ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 54780037                                             ||
+||    Successfully assigned alignments : 34756961 (63.4%)                     ||
+||    Running time : 0.24 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 6-23.bam...                                               ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 108076170                                            ||
+||    Successfully assigned alignments : 62921836 (58.2%)                     ||
+||    Running time : 0.45 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 6-4.bam...                                                ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 52567716                                             ||
+||    Successfully assigned alignments : 31559446 (60.0%)                     ||
+||    Running time : 0.22 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 7-24.bam...                                               ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 115214199                                            ||
+||    Successfully assigned alignments : 73095375 (63.4%)                     ||
+||    Running time : 0.47 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 7-5.bam...                                                ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 63175127                                             ||
+||    Successfully assigned alignments : 38620137 (61.1%)                     ||
+||    Running time : 0.27 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 8-6.bam...                                                ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 46451702                                             ||
+||    Successfully assigned alignments : 27500365 (59.2%)                     ||
+||    Running time : 0.20 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 9-25.bam...                                               ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 115147070                                            ||
+||    Successfully assigned alignments : 69729749 (60.6%)                     ||
+||    Running time : 0.47 minutes                                             ||
+||                                                                            ||
+|| Process BAM file 9-7.bam...                                                ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    The reads are assigned on the single-end mode.                          ||
+||    Total alignments : 55881455                                             ||
+||    Successfully assigned alignments : 34128836 (61.1%)                     ||
+||    Running time : 0.24 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+|| Summary of counting results can be found in file "A_Equina_Counts.txt.sum  ||
+|| mary"                                                                      ||
+||                                                                            ||
+\\============================================================================//
+
+Counts read!
