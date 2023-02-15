@@ -51,8 +51,8 @@ str(counts)
 Counts_only <- subset(counts, select = c(-Chr,-Start,-End,-Strand,-Length))
 str(Counts_only[2,])
 
-countslong<- subset(counts[,c(1:5,17:33)])
-countsshort <- subset(counts[,c(1:16)])
+countslong<- subset(counts[,c(1:5,13:26)])
+countsshort <- subset(counts[,c(1:5,6:12,27:33)])
 
 ## Calculate Parameters: ----
 {
@@ -155,24 +155,24 @@ pheatmap(tpmlong[selectedGeneslong,], scale = 'row', show_rownames = FALSE)
 pheatmap(tpmshort[selectedGenesshort,], scale = 'row', show_rownames = FALSE)
 
 
-colData <- read.table("data/A_Equina/Sample_ID_query.tsv", header = T, sep = '\t', 
+colData <- read.table("data/A_Equina/colData.tsv", header = T, sep = '\t', 
                       stringsAsFactors = TRUE)
-colDatalong <- subset(colData[11:27,])
-colDatashort <- subset(colData[c(6:8,10,28,1:5,29),])
+colDatalong <- subset(colData[8:21,])
+colDatashort <- subset(colData[c(1:7,22:28),])
 
 
 
 pheatmap(tpm[selectedGenes,], scale = 'row', 
          show_rownames = FALSE, 
-         annotation_col = colData[c("group")])
+         annotation_col = colData[c("Group")])
 
 pheatmap(tpmlong[selectedGeneslong,], scale = 'row', 
          show_rownames = FALSE, 
-         annotation_col = colData[c("group")])
+         annotation_col = colDatalong[c("Group")])
 
 pheatmap(tpmshort[selectedGenesshort,], scale = 'row', 
          show_rownames = FALSE, 
-         annotation_col = colData[c("group")])
+         annotation_col = colDatashort[c("Group")])
 
 ## PCA plot
 {
@@ -209,17 +209,16 @@ corrplot(correlationMatrixshort, order = 'hclust',
 # Transforming the correlation plot into a heatmap figure
 # split the clusters into two based on the clustering similarity 
 pheatmap(correlationMatrix,  
-         annotation_col = colData[c("group")], 
+         annotation_col = colData[c("Group")], 
          cutree_cols = 2)
 
 pheatmap(correlationMatrixlong,  
-         annotation_col = colData[c("group")], 
+         annotation_col = colData[c("Group")], 
          cutree_cols = 2)
 
 pheatmap(correlationMatrixshort,  
-         annotation_col = colData[c("group")], 
+         annotation_col = colData[c("Group")], 
          cutree_cols = 2)
-
 
 ## 5. Differential Expression Analysis ----
 
@@ -243,11 +242,8 @@ storage.mode(countData) <- "numeric"}
   class(countDatashort) <- "numeric"
   storage.mode(countDatashort) <- "numeric"}
 
-
-colData <- read.table("data/A_Equina/Sample_ID_query_copy.tsv", header = T, sep = '\t', 
-                      stringsAsFactors = TRUE)
 #define the experimental setup 
-designFormula <- "~ group"
+designFormula <- "~ Group"
 
 ## Build initial DEseq matrix
 dds <- DESeqDataSetFromMatrix(countData = countData, 
@@ -273,8 +269,8 @@ ddsshort <- DESeq(ddsshort)
 #compute the contrast for the 'group' variable where 'CTRL' 
 #samples are used as the control group. 
 DEresults = results(dds, contrast = c("group", 'X', 'A', 'B', 'C'))
-DEresultslong = results(ddslong, contrast = c("group", 'B', 'C'))
-DEresultsshort = results(ddsshort, contrast = c("group", 'X', 'A'))
+DEresultslong = results(dds, contrast = c("Group", 'B', 'C'))
+DEresultsshort = results(dds, contrast = c("Group", 'X', 'A'))
 #sort results by increasing p-value
 DEresults <- DEresults[order(DEresults$pvalue),]
 DEresultslong <- DEresultslong[order(DEresultslong$pvalue),]
