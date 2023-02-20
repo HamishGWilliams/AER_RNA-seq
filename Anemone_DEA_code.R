@@ -46,7 +46,7 @@ BiocManager::install("gage", force = TRUE)
 library(gage)
 
 ## Load in Count Data: ----
-counts <- as.matrix(read.table("data/A_Equina/Counts_Data.tsv", header = T, sep = '\t'))
+counts <- as.matrix(read.table("data/A_Equina/A_Equina_Counts_redo.tsv", header = T, sep = '\t'))
 str(counts)
 Counts_only <- subset(counts, select = c(-Chr,-Start,-End,-Strand,-Length))
 str(Counts_only[2,])
@@ -165,14 +165,26 @@ colDatashort <- subset(colData[c(1:7,22:28),])
 pheatmap(tpm[selectedGenes,], scale = 'row', 
          show_rownames = FALSE, 
          annotation_col = colData[c("Group")])
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/clustered_genes_heatmap_all.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/clustered_genes_heatmap_all.short"))
+dev.off()
 
 pheatmap(tpmlong[selectedGeneslong,], scale = 'row', 
          show_rownames = FALSE, 
          annotation_col = colDatalong[c("Group")])
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/clustered_genes_heatmap_long.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/clustered_genes_heatmap_long.short"))
+dev.off()
 
 pheatmap(tpmshort[selectedGenesshort,], scale = 'row', 
          show_rownames = FALSE, 
          annotation_col = colDatashort[c("Group")])
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/clustered_genes_heatmap_short.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/clustered_genes_heatmap_short.short"))
+dev.off()
 
 ## PCA plot
 {
@@ -185,7 +197,11 @@ pheatmap(tpmshort[selectedGenesshort,], scale = 'row',
   pcaResults <- prcomp(M)
   str(M)
   # Plot PCA
-  autoplot(pcaResults, data = colData, colour = 'group')
+  autoplot(pcaResults, data = colData, colour = 'Group')
+  dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PCA_plot.png"))
+  dev.off()
+  dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PCA_plot.short"))
+  dev.off()
   summary(pcaResults)
 }
 
@@ -211,14 +227,26 @@ corrplot(correlationMatrixshort, order = 'hclust',
 pheatmap(correlationMatrix,  
          annotation_col = colData[c("Group")], 
          cutree_cols = 2)
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/correlation_heatmap_all.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/correlation_heatmap_all.short"))
+dev.off()
 
 pheatmap(correlationMatrixlong,  
-         annotation_col = colData[c("Group")], 
+         annotation_col = colDatalong[c("Group")], 
          cutree_cols = 2)
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/correlation_heatmap_long.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/correlation_heatmap_long.short"))
+dev.off()
 
 pheatmap(correlationMatrixshort,  
-         annotation_col = colData[c("Group")], 
+         annotation_col = colDatashort[c("Group")], 
          cutree_cols = 2)
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/correlation_heatmap_short.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/correlation_heatmap_short.short"))
+dev.off()
 
 ## 5. Differential Expression Analysis ----
 
@@ -242,51 +270,78 @@ storage.mode(countData) <- "numeric"}
   class(countDatashort) <- "numeric"
   storage.mode(countDatashort) <- "numeric"}
 
-#define the experimental setup 
+# define the experimental setup 
 designFormula <- "~ Group"
 
 ## Build initial DEseq matrix
 dds <- DESeqDataSetFromMatrix(countData = countData, 
                               colData = colData, 
                               design = as.formula(designFormula))
+## Remove genes that have almost no information in any give samples
+dds <- dds[ rowSums(DESeq2::counts(dds)) > 1, ]
+# Now perform Differential expression analysis
+dds <- DESeq(dds)
+#compute the contrast for the 'group' variable where 'CTRL' 
+#samples are used as the control group. 
+DEresults = results(dds, contrast = c("Group", 'X', 'A', 'B', 'C'))
+#sort results by increasing p-value
+DEresults <- DEresults[order(DEresults$pvalue),]
+## MA plot
+# A scatter plot where the X-axis denotes the average normalized counts across
+# samples and the y-axis denotes the log fold change in the given contrast.
+# Most points will be on the horizontal 0 line as most genes are not
+# differentially expressed
+DESeq2::plotMA(object = dds, ylim = c(-5, 5))
+
+
+## Build initial DEseq matrix
 ddslong <- DESeqDataSetFromMatrix(countData = countDatalong, 
                               colData = colDatalong, 
                               design = as.formula(designFormula))
+## Remove genes that have almost no information in any give samples
+ddslong <- ddslong[ rowSums(DESeq2::counts(ddslong)) > 1, ]
+# Now perform Differential expression analysis
+ddslong <- DESeq(ddslong)
+#compute the contrast for the 'group' variable where 'CTRL' 
+#samples are used as the control group.
+DEresultslong = results(ddslong, contrast = c("Group", 'B', 'C'))
+#sort results by increasing p-value
+DEresultslong <- DEresultslong[order(DEresultslong$pvalue),]
+## MA plot
+# A scatter plot where the X-axis denotes the average normalized counts across
+# samples and the y-axis denotes the log fold change in the given contrast.
+# Most points will be on the horizontal 0 line as most genes are not
+# differentially expressed
+DESeq2::plotMA(object = ddslong, ylim = c(-5, 5))
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/MA_plot_long.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/MA_plot_long.short"))
+dev.off()
+
+## Build initial DEseq matrix
 ddsshort <- DESeqDataSetFromMatrix(countData = countDatashort, 
                               colData = colDatashort, 
                               design = as.formula(designFormula))
-
 ## Remove genes that have almost no information in any give samples
-dds <- dds[ rowSums(DESeq2::counts(dds)) > 1, ]
-ddslong <- ddslong[ rowSums(DESeq2::counts(ddslong)) > 1, ]
 ddsshort <- ddsshort[ rowSums(DESeq2::counts(ddsshort)) > 1, ]
-
 # Now perform Differential expression analysis
-dds <- DESeq(dds)
-ddslong <- DESeq(ddslong)
 ddsshort <- DESeq(ddsshort)
-
 #compute the contrast for the 'group' variable where 'CTRL' 
-#samples are used as the control group. 
-DEresults = results(dds, contrast = c("group", 'X', 'A', 'B', 'C'))
-DEresultslong = results(dds, contrast = c("Group", 'B', 'C'))
+#samples are used as the control group.
 DEresultsshort = results(dds, contrast = c("Group", 'X', 'A'))
 #sort results by increasing p-value
-DEresults <- DEresults[order(DEresults$pvalue),]
-DEresultslong <- DEresultslong[order(DEresultslong$pvalue),]
 DEresultsshort <- DEresultsshort[order(DEresultsshort$pvalue),]
-
 ## MA plot
+# A scatter plot where the X-axis denotes the average normalized counts across
+# samples and the y-axis denotes the log fold change in the given contrast.
+# Most points will be on the horizontal 0 line as most genes are not
+# differentially expressed
+DESeq2::plotMA(object = ddsshort, ylim = c(-5, 5))
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/MA_plot_short.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/MA_plot_short.short"))
+dev.off()
 
-  # A scatter plot where the X-axis denotes the average normalized counts across
-  # samples and the y-axis denotes the log fold change in the given contrast.
-  
-  # Most points will be on the horizontal 0 line as most genes are not
-  # differentially expressed
-  DESeq2::plotMA(object = dds, ylim = c(-5, 5))
-  DESeq2::plotMA(object = ddslong, ylim = c(-5, 5))
-  DESeq2::plotMA(object = ddsshort, ylim = c(-5, 5))
-  
 ## P-value distribution
 
    # shows distribution of the raw p-values
@@ -295,6 +350,20 @@ DEresultsshort <- DEresultsshort[order(DEresultsshort$pvalue),]
    #!! are NOT meaningful.
 ggplot(data = as.data.frame(DEresults), aes(x = pvalue)) + 
   geom_histogram(bins = 100)
+
+ggplot(data = as.data.frame(DEresultslong), aes(x = pvalue)) + 
+  geom_histogram(bins = 100)
+dev.copy(png, file = file.path(getwd(),"figures/example/PValue_Distribution_long.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/example/PValue_Distribution_long.svg"))
+dev.off()
+
+ggplot(data = as.data.frame(DEresultsshort), aes(x = pvalue)) + 
+  geom_histogram(bins = 100)
+dev.copy(png, file = file.path(getwd(),"figures/example/PValue_Distribution_short.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/example/PValue_Distribution_short.svg"))
+dev.off()
 
 ## PCA plot
 
@@ -323,7 +392,7 @@ ggplot(data = as.data.frame(DEresults), aes(x = pvalue)) +
   ##!! within it, so just need to use the plot below:
 
 rld <- rlog(dds)
-DESeq2::plotPCA(rld, ntop = 500, intgroup = 'group') + 
+DESeq2::plotPCA(rld, ntop = 500, intgroup = 'Group') + 
       ylim(-50, 50) + theme_bw()
 
 ## Relative Log Expression (RLE) plot:
@@ -336,11 +405,11 @@ DESeq2::plotPCA(rld, ntop = 500, intgroup = 'group') +
   
     par(mfrow = c(1, 2))
     plotRLE(countData, outline=FALSE, ylim=c(-4, 4), 
-            col=as.numeric(colData$group), 
+            col=as.numeric(colData$Group), 
             main = 'Raw Counts')
     plotRLE(DESeq2::counts(dds, normalized = TRUE), 
             outline=FALSE, ylim=c(-4, 4), 
-            col = as.numeric(colData$group), 
+            col = as.numeric(colData$Group), 
             main = 'Normalized Counts')
     par(mfrow = c(1, 1))
 
@@ -373,12 +442,185 @@ DESeq2::plotPCA(rld, ntop = 500, intgroup = 'group') +
     # Look at how samples are clustered by calculating TPM as a heatmap:
 
     ## Heatmap plot for covariates
-    colData <- read.table("data/A_Equina/Sample_ID_query.tsv", header = T, sep = '\t', 
+    colData <- read.table("data/A_Equina/colData.tsv", header = T, sep = '\t', 
                           stringsAsFactors = TRUE)
     
     
-    pheatmap(tpm[selectedGenes,], 
+pheatmap(tpm[selectedGenes,], 
              scale = 'row',
-             annotation_col = colData[c("group","Oil")], 
+             annotation_col = colData[c("Oil","Group","Length","Clone")], 
              show_rownames = FALSE)
-    
+
+pheatmap(tpmlong[selectedGeneslong,], 
+         scale = 'row',
+         annotation_col = colData[c("Group","Clone")], 
+         show_rownames = FALSE)
+
+pheatmap(tpmshort[selectedGenesshort,], 
+         scale = 'row',
+         annotation_col = colData[c("Oil","Clone")], 
+         show_rownames = FALSE)
+
+
+# define the experimental setup 
+designFormula <- "~ Group + Clone"
+
+## Build initial DEseq matrix
+ddslong <- DESeqDataSetFromMatrix(countData = countDatalong, 
+                                  colData = colDatalong, 
+                                  design = as.formula(designFormula))
+## Remove genes that have almost no information in any give samples
+ddslong <- ddslong[ rowSums(DESeq2::counts(ddslong)) > 1, ]
+# Now perform Differential expression analysis
+ddslong <- DESeq(ddslong)
+#compute the contrast for the 'group' variable where 'CTRL' 
+#samples are used as the control group.
+DEresultslong = results(ddslong, contrast = c("Group", 'B', 'C'))
+#sort results by increasing p-value
+DEresultslong <- DEresultslong[order(DEresultslong$pvalue),]
+## MA plot
+# A scatter plot where the X-axis denotes the average normalized counts across
+# samples and the y-axis denotes the log fold change in the given contrast.
+# Most points will be on the horizontal 0 line as most genes are not
+# differentially expressed
+DESeq2::plotMA(object = ddslong, ylim = c(-5, 5))
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/MA_plot_Clone_long.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/MA_plot_Clone_long.short"))
+dev.off()
+
+## Build initial DEseq matrix
+ddsshort <- DESeqDataSetFromMatrix(countData = countDatashort, 
+                                   colData = colDatashort, 
+                                   design = as.formula(designFormula))
+## Remove genes that have almost no information in any give samples
+ddsshort <- ddsshort[ rowSums(DESeq2::counts(ddsshort)) > 1, ]
+# Now perform Differential expression analysis
+ddsshort <- DESeq(ddsshort)
+#compute the contrast for the 'group' variable where 'CTRL' 
+#samples are used as the control group.
+DEresultsshort = results(dds, contrast = c("Group", 'X', 'A'))
+#sort results by increasing p-value
+DEresultsshort <- DEresultsshort[order(DEresultsshort$pvalue),]
+## MA plot
+# A scatter plot where the X-axis denotes the average normalized counts across
+# samples and the y-axis denotes the log fold change in the given contrast.
+# Most points will be on the horizontal 0 line as most genes are not
+# differentially expressed
+DESeq2::plotMA(object = ddsshort, ylim = c(-5, 5))
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/MA_plot_Clone_short.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/MA_plot_Clone_short.short"))
+dev.off()
+
+## P-value distribution
+
+# shows distribution of the raw p-values
+# we expect to see a peak ~ low p-value and a uniform distribution above 0.1
+#!! OTHERWISE, adjustment for multiple testing does not work, and results
+#!! are NOT meaningful.
+ggplot(data = as.data.frame(DEresults), aes(x = pvalue)) + 
+  geom_histogram(bins = 100)
+
+ggplot(data = as.data.frame(DEresultslong), aes(x = pvalue)) + 
+  geom_histogram(bins = 100)
+dev.copy(png, file = file.path(getwd(),"figures/example/PValue_Distribution_long.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/example/PValue_Distribution_long.svg"))
+dev.off()
+
+ggplot(data = as.data.frame(DEresultsshort), aes(x = pvalue)) + 
+  geom_histogram(bins = 100)
+dev.copy(png, file = file.path(getwd(),"figures/example/PValue_Distribution_short.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/example/PValue_Distribution_short.svg"))
+dev.off()
+
+rldlong <- rlog(ddslong)
+DESeq2::plotPCA(rldlong, ntop = 500, intgroup = 'Group') + 
+  ylim(-50, 50) + theme_bw()
+DESeq2::plotPCA(rldlong, ntop = 500, intgroup = 'Clone') + 
+  ylim(-50, 50) + theme_bw()
+
+
+rldshort <- rlog(ddsshort)
+DESeq2::plotPCA(rldshort, ntop = 500, intgroup = 'Group') + 
+  ylim(-50, 50) + theme_bw()
+DESeq2::plotPCA(rldshort, ntop = 500, intgroup = 'Clone') + 
+  ylim(-50, 50) + theme_bw()
+
+
+## Relative Log Expression (RLE) plot:
+
+# useful in finding out if the data at hand needs normalization.
+# Runs a quick dignostic to be applied on the raw or normliazed count
+# matrices to see if further processing is required.
+
+#install.packages("EDASeq")
+
+par(mfrow = c(1, 2))
+plotRLE(countDatalong, outline=FALSE, ylim=c(-4, 4), 
+        col=as.numeric(colData$Group), 
+        main = 'Raw Counts')
+plotRLE(DESeq2::counts(ddslong, normalized = TRUE), 
+        outline=FALSE, ylim=c(-4, 4), 
+        col = as.numeric(colData$Group), 
+        main = 'Normalized Counts')
+par(mfrow = c(1, 1))
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/RLE_plot_long.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/RLE_plot_long.svg"))
+dev.off()
+
+par(mfrow = c(1, 2))
+plotRLE(countDatashort, outline=FALSE, ylim=c(-4, 4), 
+        col=as.numeric(colData$Group), 
+        main = 'Raw Counts')
+plotRLE(DESeq2::counts(ddsshort, normalized = TRUE), 
+        outline=FALSE, ylim=c(-4, 4), 
+        col = as.numeric(colData$Group), 
+        main = 'Normalized Counts')
+par(mfrow = c(1, 1))
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/RLE_plot_short.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/RLE_plot_short.svg"))
+dev.off()
+
+
+## 9. Accounting for Unknown Covariates with RUVseq ----
+
+# Use tools such as RUVseq or sva to estimate potential sources of variation and
+# clean up the counts table from those sources of variation. Later on, the 
+# estimate covariates can be integrated into DESeq2's design formula.
+
+# Use RUVseq first to diagnose the problem and solve it. 
+## !! Using a New dataset for this part !!
+
+
+
+
+
+colData$source_name <- ifelse(colData$group == 'Group', 
+                              'Oil', 'Length', 'Empty_Vector')
+
+set <- newSeqExpressionSet(counts = countData,
+                           phenoData = colData)
+
+# make an RLE plot and a PCA plot on raw count data and color samples by group
+par(mfrow = c(1,2))
+plotRLE(set, outline=FALSE, ylim=c(-4, 4), col=as.numeric(colData$Group))
+plotPCA(set, col = as.numeric(colData$Group), adj = 0.5, 
+        ylim = c(-0.7, 0.5), xlim = c(-0.5, 0.5))
+par(mfrow = c(1,1))
+
+## make RLE and PCA plots on TPM matrix 
+par(mfrow = c(1,2))
+plotRLE(tpm, outline=FALSE, ylim=c(-4, 4), col=as.numeric(colData$Group))
+plotPCA(tpm, col=as.numeric(colData$Group), adj = 0.5, 
+        ylim = c(-0.3, 1), xlim = c(-0.5, 0.5))
+par(mfrow = c(1,1))
+
+  # Both RLE and PCA plots look better on normalized data, but still suggests the 
+  # necessity to further improvement, since case_5 sample still clusters with the
+  # control samples. We haven't yet accounted for the source of the variation.
+  
