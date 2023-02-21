@@ -38,11 +38,16 @@ pkg_list<-c("tidyverse", "DESeq2", "tibble", "stats", "EDASeq",
 check_packages(pkg_list)
 check_packages(pkg_list)
 
+av <- available.packages("DESeq2")
+av[av[, "Package"] == pkg, ]
+
 # Other packages which need to be forced
 if (!require("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
 BiocManager::install("gage", force = TRUE)
+BiocManager::install("DESeq2", force = TRUE)
+BiocManager::install("RUVSeq", force = TRUE)
 library(gage)
 
 ## Load in Count Data: ----
@@ -304,7 +309,7 @@ ddslong <- ddslong[ rowSums(DESeq2::counts(ddslong)) > 1, ]
 ddslong <- DESeq(ddslong)
 #compute the contrast for the 'group' variable where 'CTRL' 
 #samples are used as the control group.
-DEresultslong = results(ddslong, contrast = c("Group", 'B', 'C'))
+DEresultslong = results(ddslong, contrast = c("Group", 'C', 'B'))
 #sort results by increasing p-value
 DEresultslong <- DEresultslong[order(DEresultslong$pvalue),]
 ## MA plot
@@ -463,19 +468,21 @@ pheatmap(tpmshort[selectedGenesshort,],
 
 
 # define the experimental setup 
-designFormula <- "~ Group + Clone"
+## !! The condition of interest should go at the end of the design formula, e.g. ~ subject + condition !! ##
+designFormula <- "~ Clone + Group"
 
 ## Build initial DEseq matrix
 ddslong <- DESeqDataSetFromMatrix(countData = countDatalong, 
                                   colData = colDatalong, 
                                   design = as.formula(designFormula))
+vignette('DESeq2')
 ## Remove genes that have almost no information in any give samples
 ddslong <- ddslong[ rowSums(DESeq2::counts(ddslong)) > 1, ]
 # Now perform Differential expression analysis
 ddslong <- DESeq(ddslong)
 #compute the contrast for the 'group' variable where 'CTRL' 
 #samples are used as the control group.
-DEresultslong = results(ddslong, contrast = c("Group", 'B', 'C'))
+DEresultslong = results(ddslong, contrast = c("Group", 'C', 'B'))
 #sort results by increasing p-value
 DEresultslong <- DEresultslong[order(DEresultslong$pvalue),]
 ## MA plot
@@ -489,6 +496,75 @@ dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/MA_plot_Clone_long.short"))
 dev.off()
 
+summary(DEresultslong)
+sum(DEresultslong$padj < 0.1, na.rm=TRUE)
+DEresultslong05 <- results(ddslong, alpha=0.05)
+summary(DEresultslong05)
+sum(DEresultslong05$padj < 0.05, na.rm=TRUE)
+
+## Independent hypothesis weighting
+install.packages("IHW")
+BiocManager::install("IHW", force = TRUE)
+library("IHW")
+resIHW <- results(ddslong, filterFun=ihw)
+summary(resIHW)
+sum(resIHW$padj < 0.1, na.rm=TRUE)
+metadata(resIHW)$ihwResult
+
+DESeq2::plotCounts(ddslong, gene=which.min(DEresultslong$padj), intgroup=c("Clone","Group"))
+
+select <- order(rowMeans(counts(ddslong,normalized=TRUE)),
+               decreasing=TRUE)[1:20]
+df <- as.data.frame(colData(ddslong)[,c("Group","Clone")])
+pheatmap(assay(ddslong)[select,], cluster_rows=FALSE, show_rownames=FALSE,
+         cluster_cols=FALSE, annotation_col=df)
+
+sampleDists <- dist(t(assay(ddslong)))
+library("RColorBrewer")
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- paste(ddslong$Group, ddslong$Clone, sep="-")
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Reds")) )(255)
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows=sampleDists,
+         clustering_distance_cols=sampleDists,
+         col=colors)
+
+## Bonferooni Multiple-testing Adjustemnt
+# Create new pbonferonni variable - exactly the same as P-value
+DEresultslong$pbonferroni <- DEresultslong$pvalue
+# Adjust the values using the bonferonni method:
+DEresultslong$pbonferroni<-p.adjust(DEresultslong$pbonferroni, method = "bonferroni", n = length(DEresultslong$pbonferroni))
+# order the new pbonferonni values
+DEresultslong <- DEresultslong[order(DEresultslong$pbonferroni),]
+# Display P-vlue distribution:
+hist(DEresultslong$pbonferroni)
+
+## Banjamini and Hochberg Multiple-testing Adjustemnt
+# Create new pbonferonni variable - exactly the same as P-value
+DEresultslong$pfdr <- DEresultslong$pvalue
+# Adjust the values using the bonferonni method:
+DEresultslong$pfdr<-p.adjust(DEresultslong$pbonferroni, method = "fdr", n = length(DEresultslong$pbonferroni))
+# order the new pbonferonni values
+DEresultslong <- DEresultslong[order(DEresultslong$pfdr),]
+# Display P-vlue distribution:
+hist(DEresultslong$pfdr)
+
+## Holm Multiple-testing Adjustemnt
+# Create new pbonferonni variable - exactly the same as P-value
+DEresultslong$pholm <- DEresultslong$pvalue
+# Adjust the values using the bonferonni method:
+DEresultslong$pholm<-p.adjust(DEresultslong$pbonferroni, method = "holm", n = length(DEresultslong$pbonferroni))
+# order the new pbonferonni values
+DEresultslong <- DEresultslong[order(DEresultslong$pholm),]
+# Display P-vlue distribution:
+hist(DEresultslong$pholm)
+
+par(mfrow = c(1,2))
+hist(DEresultslong$padj)
+hist(DEresultslong$pvalue)
+par(mfrow = c(1,1))
+
 ## Build initial DEseq matrix
 ddsshort <- DESeqDataSetFromMatrix(countData = countDatashort, 
                                    colData = colDatashort, 
@@ -499,7 +575,7 @@ ddsshort <- ddsshort[ rowSums(DESeq2::counts(ddsshort)) > 1, ]
 ddsshort <- DESeq(ddsshort)
 #compute the contrast for the 'group' variable where 'CTRL' 
 #samples are used as the control group.
-DEresultsshort = results(dds, contrast = c("Group", 'X', 'A'))
+DEresultsshort = results(ddsshort, contrast = c("Group", 'X', 'A'))
 #sort results by increasing p-value
 DEresultsshort <- DEresultsshort[order(DEresultsshort$pvalue),]
 ## MA plot
@@ -513,15 +589,45 @@ dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/MA_plot_Clone_short.short"))
 dev.off()
 
+summary(DEresultsshort)
+sum(DEresultsshort$padj < 0.1, na.rm=TRUE)
+DEresultsshort05 <- results(ddsshort, alpha=0.05)
+summary(DEresultsshort05)
+sum(DEresultsshort05$padj < 0.05, na.rm=TRUE)
+
+## Independent hypothesis weighting
+# BiocManager::install("IHW", force = TRUE)
+library("IHW")
+resIHW <- results(ddsshort, filterFun=ihw)
+summary(resIHW)
+sum(resIHW$padj < 0.1, na.rm=TRUE)
+metadata(resIHW)$ihwResult
+
+DESeq2::plotCounts(ddsshort, gene=which.min(DEresultsshort$padj), intgroup=c("Clone","Group"))
+
+select <- order(rowMeans(counts(ddsshort,normalized=TRUE)),
+                decreasing=TRUE)[1:20]
+df <- as.data.frame(colData(ddsshort)[,c("Group","Clone")])
+pheatmap(assay(ddsshort)[select,], cluster_rows=FALSE, show_rownames=FALSE,
+         cluster_cols=FALSE, annotation_col=df)
+
+sampleDists <- dist(t(assay(ddsshort)))
+library("RColorBrewer")
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- paste(ddsshort$Group, ddslong$Clone, sep="-")
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Reds")) )(255)
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows=sampleDists,
+         clustering_distance_cols=sampleDists,
+         col=colors)
+
 ## P-value distribution
 
 # shows distribution of the raw p-values
 # we expect to see a peak ~ low p-value and a uniform distribution above 0.1
 #!! OTHERWISE, adjustment for multiple testing does not work, and results
 #!! are NOT meaningful.
-ggplot(data = as.data.frame(DEresults), aes(x = pvalue)) + 
-  geom_histogram(bins = 100)
-
 ggplot(data = as.data.frame(DEresultslong), aes(x = pvalue)) + 
   geom_histogram(bins = 100)
 dev.copy(png, file = file.path(getwd(),"figures/example/PValue_Distribution_long.png"))
@@ -536,8 +642,44 @@ dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/example/PValue_Distribution_short.svg"))
 dev.off()
 
+## Bonferooni Multiple-testing Adjustemnt
+# Create new pbonferonni variable - exactly the same as P-value
+DEresultsshort$pbonferroni <- DEresultsshort$pvalue
+# Adjust the values using the bonferonni method:
+DEresultsshort$pbonferroni<-p.adjust(DEresultsshort$pbonferroni, method = "bonferroni", n = length(DEresultsshort$pbonferroni))
+# order the new pbonferonni values
+DEresultsshort <- DEresultsshort[order(DEresultsshort$pbonferroni),]
+# Display P-vlue distribution:
+hist(DEresultsshort$pbonferroni)
+
+## Banjamini and Hochberg Multiple-testing Adjustemnt
+# Create new pbonferonni variable - exactly the same as P-value
+DEresultsshort$pfdr <- DEresultsshort$pvalue
+# Adjust the values using the bonferonni method:
+DEresultsshort$pfdr<-p.adjust(DEresultsshort$pbonferroni, method = "fdr", n = length(DEresultsshort$pbonferroni))
+# order the new pbonferonni values
+DEresultsshort <- DEresultsshort[order(DEresultsshort$pfdr),]
+# Display P-vlue distribution:
+hist(DEresultsshort$pfdr)
+
+## Holm Multiple-testing Adjustemnt
+# Create new pbonferonni variable - exactly the same as P-value
+DEresultsshort$pholm <- DEresultsshort$pvalue
+# Adjust the values using the bonferonni method:
+DEresultsshort$pholm<-p.adjust(DEresultsshort$pbonferroni, method = "holm", n = length(DEresultsshort$pbonferroni))
+# order the new pbonferonni values
+DEresultsshort <- DEresultsshort[order(DEresultsshort$pholm),]
+# Display P-vlue distribution:
+hist(DEresultsshort$pholm)
+
+par(mfrow = c(1,2))
+hist(DEresultsshort$padj)
+hist(DEresultsshort$pvalue)
+par(mfrow = c(1,1))
+
+
 rldlong <- rlog(ddslong)
-DESeq2::plotPCA(rldlong, ntop = 500, intgroup = 'Group') + 
+DESeq2::plotPCA(rldlong, ntop = 500, intgroup = "Group") + 
   ylim(-50, 50) + theme_bw()
 DESeq2::plotPCA(rldlong, ntop = 500, intgroup = 'Clone') + 
   ylim(-50, 50) + theme_bw()
@@ -585,42 +727,3 @@ dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/RLE_plot_shor
 dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/RLE_plot_short.svg"))
 dev.off()
-
-
-## 9. Accounting for Unknown Covariates with RUVseq ----
-
-# Use tools such as RUVseq or sva to estimate potential sources of variation and
-# clean up the counts table from those sources of variation. Later on, the 
-# estimate covariates can be integrated into DESeq2's design formula.
-
-# Use RUVseq first to diagnose the problem and solve it. 
-## !! Using a New dataset for this part !!
-
-
-
-
-
-colData$source_name <- ifelse(colData$group == 'Group', 
-                              'Oil', 'Length', 'Empty_Vector')
-
-set <- newSeqExpressionSet(counts = countData,
-                           phenoData = colData)
-
-# make an RLE plot and a PCA plot on raw count data and color samples by group
-par(mfrow = c(1,2))
-plotRLE(set, outline=FALSE, ylim=c(-4, 4), col=as.numeric(colData$Group))
-plotPCA(set, col = as.numeric(colData$Group), adj = 0.5, 
-        ylim = c(-0.7, 0.5), xlim = c(-0.5, 0.5))
-par(mfrow = c(1,1))
-
-## make RLE and PCA plots on TPM matrix 
-par(mfrow = c(1,2))
-plotRLE(tpm, outline=FALSE, ylim=c(-4, 4), col=as.numeric(colData$Group))
-plotPCA(tpm, col=as.numeric(colData$Group), adj = 0.5, 
-        ylim = c(-0.3, 1), xlim = c(-0.5, 0.5))
-par(mfrow = c(1,1))
-
-  # Both RLE and PCA plots look better on normalized data, but still suggests the 
-  # necessity to further improvement, since case_5 sample still clusters with the
-  # control samples. We haven't yet accounted for the source of the variation.
-  
