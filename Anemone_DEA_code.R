@@ -472,10 +472,10 @@ pheatmap(tpmshort[selectedGenesshort,],
 designFormula <- "~ Clone + Group"
 
 ## Build initial DEseq matrix
+vignette('DESeq2')
 ddslong <- DESeqDataSetFromMatrix(countData = countDatalong, 
                                   colData = colDatalong, 
                                   design = as.formula(designFormula))
-vignette('DESeq2')
 ## Remove genes that have almost no information in any give samples
 ddslong <- ddslong[ rowSums(DESeq2::counts(ddslong)) > 1, ]
 # Now perform Differential expression analysis
@@ -501,10 +501,11 @@ sum(DEresultslong$padj < 0.1, na.rm=TRUE)
 DEresultslong05 <- results(ddslong, alpha=0.05)
 summary(DEresultslong05)
 sum(DEresultslong05$padj < 0.05, na.rm=TRUE)
+DElonglist <- as.vector(rownames(DEresultslong$padj < 0.05))
 
 ## Independent hypothesis weighting
-install.packages("IHW")
-BiocManager::install("IHW", force = TRUE)
+#install.packages("IHW")
+#BiocManager::install("IHW", force = TRUE)
 library("IHW")
 resIHW <- results(ddslong, filterFun=ihw)
 summary(resIHW)
@@ -516,8 +517,11 @@ DESeq2::plotCounts(ddslong, gene=which.min(DEresultslong$padj), intgroup=c("Clon
 select <- order(rowMeans(counts(ddslong,normalized=TRUE)),
                decreasing=TRUE)[1:20]
 df <- as.data.frame(colData(ddslong)[,c("Group","Clone")])
-pheatmap(assay(ddslong)[select,], cluster_rows=FALSE, show_rownames=FALSE,
-         cluster_cols=FALSE, annotation_col=df)
+pheatmap(assay(ddslong)[select,], cluster_rows=TRUE, show_rownames=TRUE,
+         cluster_cols=TRUE, annotation_col=df)
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/DElong_Heatmap.png"))
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/DElong_Heatmap.svg"))
+dev.off()
 
 sampleDists <- dist(t(assay(ddslong)))
 library("RColorBrewer")
@@ -608,8 +612,11 @@ DESeq2::plotCounts(ddsshort, gene=which.min(DEresultsshort$padj), intgroup=c("Cl
 select <- order(rowMeans(counts(ddsshort,normalized=TRUE)),
                 decreasing=TRUE)[1:20]
 df <- as.data.frame(colData(ddsshort)[,c("Group","Clone")])
-pheatmap(assay(ddsshort)[select,], cluster_rows=FALSE, show_rownames=FALSE,
-         cluster_cols=FALSE, annotation_col=df)
+pheatmap(assay(ddsshort)[select,], cluster_rows=TRUE, show_rownames=TRUE,
+         cluster_cols=TRUE, annotation_col=df)
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/DEshort_Heatmap.png"))
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/DEshort_Heatmap.svg"))
+dev.off()
 
 sampleDists <- dist(t(assay(ddsshort)))
 library("RColorBrewer")
