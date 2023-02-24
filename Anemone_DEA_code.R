@@ -177,7 +177,8 @@ dev.off()
 
 pheatmap(tpmlong[selectedGeneslong,], scale = 'row', 
          show_rownames = FALSE, 
-         annotation_col = colDatalong[c("Group")])
+         annotation_col = colDatalong[c("Group")],
+         main = "Clustered Genes based on Count Variation [Long]")
 dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/clustered_genes_heatmap_long.png"))
 dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/clustered_genes_heatmap_long.short"))
@@ -185,30 +186,67 @@ dev.off()
 
 pheatmap(tpmshort[selectedGenesshort,], scale = 'row', 
          show_rownames = FALSE, 
-         annotation_col = colDatashort[c("Group")])
+         annotation_col = colDatashort[c("Group")],
+         main = "Clustered Genes based on Count Variation [Short]")
 dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/clustered_genes_heatmap_short.png"))
 dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/clustered_genes_heatmap_short.short"))
 dev.off()
 
-## PCA plot
-{
-  # Transformations:
-  # transpose the matrix 
-  M <- t(tpm[selectedGenes,])
-  # transform the counts to log2 scale 
-  M <- log2(M + 1)
-  # compute PCA 
-  pcaResults <- prcomp(M)
-  str(M)
-  # Plot PCA
-  autoplot(pcaResults, data = colData, colour = 'Group')
-  dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PCA_plot.png"))
-  dev.off()
-  dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PCA_plot.short"))
-  dev.off()
-  summary(pcaResults)
-}
+## PCA plots
+# transpose the matrix 
+M <- t(tpm[selectedGenes,])
+# transform the counts to log2 scale 
+M <- log2(M + 1)
+# compute PCA 
+pcaResults <- prcomp(M)
+str(M)
+# Plot PCA [all]
+autoplot(pcaResults, 
+         data = colData, 
+         colour = 'Group',
+         main = "PCA plot of all groups")
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PCA_plot.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PCA_plot.short"))
+dev.off()
+summary(pcaResults)
+
+# transpose the matrix 
+Mlong <- t(tpmlong[selectedGeneslong,])
+# transform the counts to log2 scale 
+Mlong <- log2(Mlong + 1)
+# compute PCA 
+pcaResultslong <- prcomp(Mlong)
+str(Mlong)
+# Plot PCA [all]
+autoplot(pcaResultslong, 
+         data = colDatalong, 
+         colour = 'Group',
+         main = "PCA plot [Long]")
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PCA_plot_long.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PCA_plot_long.short"))
+dev.off()
+summary(pcaResults)
+
+# transpose the matrix 
+Mshort <- t(tpmshort[selectedGenesshort,])
+# transform the counts to log2 scale 
+Mshort <- log2(Mshort+ 1)
+# compute PCA 
+pcaResultsshort <- prcomp(Mshort)
+str(Mshort)
+# Plot PCA [all]
+autoplot(pcaResultsshort, 
+         data = colDatashort, 
+         colour = 'Group',
+         main = "PCA plot [Short]")
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PCA_plot_Short.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PCA_plot_Short.short"))
+dev.off()
+summary(pcaResults)
 
 
 ## Correlation plots
@@ -230,24 +268,27 @@ corrplot(correlationMatrixshort, order = 'hclust',
 # Transforming the correlation plot into a heatmap figure
 # split the clusters into two based on the clustering similarity 
 pheatmap(correlationMatrix,  
-         annotation_col = colData[c("Group")], 
-         cutree_cols = 2)
+         annotation_col = colData[c("Group","Clone")], 
+         cutree_cols = 2,
+         main = "Correlation Heatmap [All groups]")
 dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/correlation_heatmap_all.png"))
 dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/correlation_heatmap_all.short"))
 dev.off()
 
 pheatmap(correlationMatrixlong,  
-         annotation_col = colDatalong[c("Group")], 
-         cutree_cols = 2)
+         annotation_col = colDatalong[c("Group","Clone")], 
+         cutree_cols = 2,
+         main = "Correlation Heatmap [Long]")
 dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/correlation_heatmap_long.png"))
 dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/correlation_heatmap_long.short"))
 dev.off()
 
 pheatmap(correlationMatrixshort,  
-         annotation_col = colDatashort[c("Group")], 
-         cutree_cols = 2)
+         annotation_col = colDatashort[c("Group","Clone")], 
+         cutree_cols = 2,
+         main = "Correlation Heatmap [Short]")
 dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/correlation_heatmap_short.png"))
 dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/correlation_heatmap_short.short"))
@@ -317,7 +358,9 @@ DEresultslong <- DEresultslong[order(DEresultslong$pvalue),]
 # samples and the y-axis denotes the log fold change in the given contrast.
 # Most points will be on the horizontal 0 line as most genes are not
 # differentially expressed
-DESeq2::plotMA(object = ddslong, ylim = c(-5, 5))
+DESeq2::plotMA(object = ddslong, 
+               ylim = c(-5, 5),
+               main = "MA plot [Long]")
 dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/MA_plot_long.png"))
 dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/MA_plot_long.short"))
@@ -333,7 +376,7 @@ ddsshort <- ddsshort[ rowSums(DESeq2::counts(ddsshort)) > 1, ]
 ddsshort <- DESeq(ddsshort)
 #compute the contrast for the 'group' variable where 'CTRL' 
 #samples are used as the control group.
-DEresultsshort = results(dds, contrast = c("Group", 'X', 'A'))
+DEresultsshort = results(ddsshort, contrast = c("Group", 'X', 'A'))
 #sort results by increasing p-value
 DEresultsshort <- DEresultsshort[order(DEresultsshort$pvalue),]
 ## MA plot
@@ -341,7 +384,9 @@ DEresultsshort <- DEresultsshort[order(DEresultsshort$pvalue),]
 # samples and the y-axis denotes the log fold change in the given contrast.
 # Most points will be on the horizontal 0 line as most genes are not
 # differentially expressed
-DESeq2::plotMA(object = ddsshort, ylim = c(-5, 5))
+DESeq2::plotMA(object = ddsshort, 
+               ylim = c(-5, 5),
+               main = "MA plot [Short]")
 dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/MA_plot_short.png"))
 dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/MA_plot_short.short"))
@@ -353,21 +398,22 @@ dev.off()
    # we expect to see a peak ~ low p-value and a uniform distribution above 0.1
   #!! OTHERWISE, adjustment for multiple testing does not work, and results
    #!! are NOT meaningful.
-ggplot(data = as.data.frame(DEresults), aes(x = pvalue)) + 
-  geom_histogram(bins = 100)
+ggplot(data = as.data.frame(DEresultslong), 
+       aes(x = pvalue)) + 
+  geom_histogram(bins = 100) + 
+  ggtitle("Raw P-Value Distribution [Long - Group only]")
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PValue_long_Group_Only.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PValue_long_Group_Only.svg"))
+dev.off()
 
-ggplot(data = as.data.frame(DEresultslong), aes(x = pvalue)) + 
-  geom_histogram(bins = 100)
-dev.copy(png, file = file.path(getwd(),"figures/example/PValue_Distribution_long.png"))
+ggplot(data = as.data.frame(DEresultsshort), 
+       aes(x = pvalue)) + 
+  geom_histogram(bins = 100) + 
+  ggtitle("Raw P-Value Distribution [Short - Group only]")
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PValue_short_Group_Only.png"))
 dev.off()
-dev.copy(svg, file = file.path(getwd(),"figures/example/PValue_Distribution_long.svg"))
-dev.off()
-
-ggplot(data = as.data.frame(DEresultsshort), aes(x = pvalue)) + 
-  geom_histogram(bins = 100)
-dev.copy(png, file = file.path(getwd(),"figures/example/PValue_Distribution_short.png"))
-dev.off()
-dev.copy(svg, file = file.path(getwd(),"figures/example/PValue_Distribution_short.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PValue_short_Group_Only.svg"))
 dev.off()
 
 ## PCA plot
@@ -378,60 +424,91 @@ dev.off()
   # scatter plot by the variable of interest, which helps to see if the replicates
   # cluster well.
   
-  # # extract normalized counts from the DESeqDataSet object
-  # countsNormalized <- DESeq2::counts(dds, normalized = TRUE)
-  # 
-  # # select top 500 most variable genes
-  # selectedGenes <- names(sort(apply(countsNormalized, 1, var), 
-  #                             decreasing = TRUE)[1:500])
-  # 
-  # plotPCA(countsNormalized[selectedGenes,], 
-  #         col = as.numeric(colData$group), adj = 0.5, 
-  #         xlim = c(-0.5, 0.5), ylim = c(-0.5, 0.6))
-  
-  ##!! The above code doesnt seem to work, it comes up with the error:
-  # Error in (function (classes, fdef, mtable)  : 
-  # unable to find an inherited method for function ‘plotPCA’ for signature ‘"matrix"’
-  
-  ##!! It seems that the plotPCA function is unable to have 'matrix' type objects
-  ##!! within it, so just need to use the plot below:
+# extract normalized counts from the DESeqDataSet object
+countsNormalized <- DESeq2::counts(ddslong, normalized = TRUE)
 
-rld <- rlog(dds)
-DESeq2::plotPCA(rld, ntop = 500, intgroup = 'Group') + 
-      ylim(-50, 50) + theme_bw()
+# select top 500 most variable genes
+selectedGenes500long<- names(sort(apply(countsNormalized, 1, var), 
+                            decreasing = TRUE)[1:500])
+
+DESeq2::plotPCA(countsNormalized[selectedGenes500long,], 
+          col = as.numeric(colDatalong$Group), 
+          adj = 0.5, 
+          xlim = c(-0.6, 0.6), 
+          ylim = c(-0.6, 0.6),
+          main = "PCA of Normalized counts [Long]")
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PCA_NC_Long.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PCA_NC_Long.svg"))
+dev.off()
+  
+# extract normalized counts from the DESeqDataSet object
+countsNormalized <- DESeq2::counts(ddsshort, normalized = TRUE)
+
+# select top 500 most variable genes
+selectedGenes500short<- names(sort(apply(countsNormalized, 1, var), 
+                                  decreasing = TRUE)[1:500])
+
+DESeq2::plotPCA(countsNormalized[selectedGenes500short,], 
+                col = as.numeric(colDatashort$Group), 
+                adj = 0.5, 
+                xlim = c(-0.7, 0.7), 
+                ylim = c(-0.6, 0.6),
+                main = "PCA of Normalized Counts [Short]")
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PCA_NC_Short.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PCA_NC_Short.svg"))
+dev.off()
 
 ## Relative Log Expression (RLE) plot:
 
-  # useful in finding out if the data at hand needs normalization.
-  # Runs a quick dignostic to be applied on the raw or normliazed count
-  # matrices to see if further processing is required.
+# useful in finding out if the data at hand needs normalization.
+# Runs a quick dignostic to be applied on the raw or normliazed count
+# matrices to see if further processing is required.
+#install.packages("EDASeq")
   
-  #install.packages("EDASeq")
-  
-    par(mfrow = c(1, 2))
-    plotRLE(countData, outline=FALSE, ylim=c(-4, 4), 
-            col=as.numeric(colData$Group), 
-            main = 'Raw Counts')
-    plotRLE(DESeq2::counts(dds, normalized = TRUE), 
-            outline=FALSE, ylim=c(-4, 4), 
-            col = as.numeric(colData$Group), 
-            main = 'Normalized Counts')
-    par(mfrow = c(1, 1))
-
-    # Here the RLE plot is comprised of boxplots, where each box-plot = 
-    # distribution of the relative log expression of the genes expressed in the 
-    # corresponding sample
-    # Each genes expression is divided by the median expression value of that gene
-    # across all samples
-    
-    # Ideally the boxplots are centered around the horizontal zero line and are
-    # as tightly distributed as possible (Risso, Ngai, Speed, et al. 2014)
-    # We can observe here how the noramlized dataset has mproved upon the raw 
-    # count data for all the samples
-    # However, in some cases, it is important to visualise the RLE plots in
-    # combination with other diagnostic plots such as PCA plots, heatmaps,
-    # and correlation plots to see if there is more unwanted variation in the data,
-    # which can be further accounted for using packages such as RUVseq and sva.
+ par(mfrow = c(1, 2))
+ plotRLE(countDatalong, outline=FALSE, ylim=c(-4, 4), 
+         col=as.numeric(colDatalong$Group), 
+         main = 'Raw Counts [Long]')
+ plotRLE(DESeq2::counts(ddslong, normalized = TRUE), 
+         outline=FALSE, ylim=c(-4, 4), 
+         col = as.numeric(colDatalong$Group), 
+         main = 'Normalized Counts [Long]')
+ dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/Raw_vs_Norm_Long.png"))
+ dev.off()
+ dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/Raw_vs_Norm_Long.svg"))
+ dev.off()
+ par(mfrow = c(1, 1))
+ 
+ par(mfrow = c(1, 2))
+ plotRLE(countDatashort, outline=FALSE, ylim=c(-4, 4), 
+         col=as.numeric(colDatashort$Group), 
+         main = 'Raw Counts [Long]')
+ plotRLE(DESeq2::counts(ddsshort, normalized = TRUE), 
+         outline=FALSE, ylim=c(-4, 4), 
+         col = as.numeric(colDatashort$Group), 
+         main = 'Normalized Counts [Short]')
+ dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/Raw_vs_Norm_Short.png"))
+ dev.off()
+ dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/Raw_vs_Norm_Short.svg"))
+ dev.off()
+ par(mfrow = c(1, 1))
+ 
+ # Here the RLE plot is comprised of boxplots, where each box-plot = 
+ # distribution of the relative log expression of the genes expressed in the 
+ # corresponding sample
+ # Each genes expression is divided by the median expression value of that gene
+ # across all samples
+ 
+ # Ideally the boxplots are centered around the horizontal zero line and are
+ # as tightly distributed as possible (Risso, Ngai, Speed, et al. 2014)
+ # We can observe here how the noramlized dataset has mproved upon the raw 
+ # count data for all the samples
+ # However, in some cases, it is important to visualise the RLE plots in
+ # combination with other diagnostic plots such as PCA plots, heatmaps,
+ # and correlation plots to see if there is more unwanted variation in the data,
+ # which can be further accounted for using packages such as RUVseq and sva.
 
 ## 8. Accounting for additional sources of variation ----
 
@@ -490,7 +567,9 @@ DEresultslong <- DEresultslong[order(DEresultslong$pvalue),]
 # samples and the y-axis denotes the log fold change in the given contrast.
 # Most points will be on the horizontal 0 line as most genes are not
 # differentially expressed
-DESeq2::plotMA(object = ddslong, ylim = c(-5, 5))
+DESeq2::plotMA(object = ddslong, 
+               ylim = c(-5, 5),
+               main = "MA plot [long - Clone + Group]")
 dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/MA_plot_Clone_long.png"))
 dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/MA_plot_Clone_long.short"))
@@ -501,73 +580,8 @@ sum(DEresultslong$padj < 0.1, na.rm=TRUE)
 DEresultslong05 <- results(ddslong, alpha=0.05)
 summary(DEresultslong05)
 sum(DEresultslong05$padj < 0.05, na.rm=TRUE)
-DElonglist <- as.vector(rownames(DEresultslong$padj < 0.05))
-
-## Independent hypothesis weighting
-#install.packages("IHW")
-#BiocManager::install("IHW", force = TRUE)
-library("IHW")
-resIHW <- results(ddslong, filterFun=ihw)
-summary(resIHW)
-sum(resIHW$padj < 0.1, na.rm=TRUE)
-metadata(resIHW)$ihwResult
-
-DESeq2::plotCounts(ddslong, gene=which.min(DEresultslong$padj), intgroup=c("Clone","Group"))
-
-select <- order(rowMeans(counts(ddslong,normalized=TRUE)),
-               decreasing=TRUE)[1:20]
-df <- as.data.frame(colData(ddslong)[,c("Group","Clone")])
-pheatmap(assay(ddslong)[select,], cluster_rows=TRUE, show_rownames=TRUE,
-         cluster_cols=TRUE, annotation_col=df)
-dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/DElong_Heatmap.png"))
-dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/DElong_Heatmap.svg"))
-dev.off()
-
-sampleDists <- dist(t(assay(ddslong)))
-library("RColorBrewer")
-sampleDistMatrix <- as.matrix(sampleDists)
-rownames(sampleDistMatrix) <- paste(ddslong$Group, ddslong$Clone, sep="-")
-colnames(sampleDistMatrix) <- NULL
-colors <- colorRampPalette( rev(brewer.pal(9, "Reds")) )(255)
-pheatmap(sampleDistMatrix,
-         clustering_distance_rows=sampleDists,
-         clustering_distance_cols=sampleDists,
-         col=colors)
-
-## Bonferooni Multiple-testing Adjustemnt
-# Create new pbonferonni variable - exactly the same as P-value
-DEresultslong$pbonferroni <- DEresultslong$pvalue
-# Adjust the values using the bonferonni method:
-DEresultslong$pbonferroni<-p.adjust(DEresultslong$pbonferroni, method = "bonferroni", n = length(DEresultslong$pbonferroni))
-# order the new pbonferonni values
-DEresultslong <- DEresultslong[order(DEresultslong$pbonferroni),]
-# Display P-vlue distribution:
-hist(DEresultslong$pbonferroni)
-
-## Banjamini and Hochberg Multiple-testing Adjustemnt
-# Create new pbonferonni variable - exactly the same as P-value
-DEresultslong$pfdr <- DEresultslong$pvalue
-# Adjust the values using the bonferonni method:
-DEresultslong$pfdr<-p.adjust(DEresultslong$pbonferroni, method = "fdr", n = length(DEresultslong$pbonferroni))
-# order the new pbonferonni values
-DEresultslong <- DEresultslong[order(DEresultslong$pfdr),]
-# Display P-vlue distribution:
-hist(DEresultslong$pfdr)
-
-## Holm Multiple-testing Adjustemnt
-# Create new pbonferonni variable - exactly the same as P-value
-DEresultslong$pholm <- DEresultslong$pvalue
-# Adjust the values using the bonferonni method:
-DEresultslong$pholm<-p.adjust(DEresultslong$pbonferroni, method = "holm", n = length(DEresultslong$pbonferroni))
-# order the new pbonferonni values
-DEresultslong <- DEresultslong[order(DEresultslong$pholm),]
-# Display P-vlue distribution:
-hist(DEresultslong$pholm)
-
-par(mfrow = c(1,2))
-hist(DEresultslong$padj)
-hist(DEresultslong$pvalue)
-par(mfrow = c(1,1))
+DElonglist <- (DEresultslong$padj < 0.05)
+DElonglist
 
 ## Build initial DEseq matrix
 ddsshort <- DESeqDataSetFromMatrix(countData = countDatashort, 
@@ -587,17 +601,132 @@ DEresultsshort <- DEresultsshort[order(DEresultsshort$pvalue),]
 # samples and the y-axis denotes the log fold change in the given contrast.
 # Most points will be on the horizontal 0 line as most genes are not
 # differentially expressed
-DESeq2::plotMA(object = ddsshort, ylim = c(-5, 5))
+DESeq2::plotMA(object = ddsshort, 
+               ylim = c(-5, 5),
+               main = "MA plot [Short - Clone + Group]")
 dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/MA_plot_Clone_short.png"))
 dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/MA_plot_Clone_short.short"))
 dev.off()
+
 
 summary(DEresultsshort)
 sum(DEresultsshort$padj < 0.1, na.rm=TRUE)
 DEresultsshort05 <- results(ddsshort, alpha=0.05)
 summary(DEresultsshort05)
 sum(DEresultsshort05$padj < 0.05, na.rm=TRUE)
+
+
+
+
+#### Add the following parts back once you haev ran throuhg all the previous
+#### plots.
+
+## Independent hypothesis weighting
+#install.packages("IHW")
+#BiocManager::install("IHW", force = TRUE)
+library("IHW")
+resIHW <- results(ddslong, filterFun=ihw)
+summary(resIHW)
+sum(resIHW$padj < 0.05, na.rm=TRUE)
+metadata(resIHW)$ihwResult
+
+DESeq2::plotCounts(ddslong, gene=which.min(DEresultslong$padj), intgroup=c("Clone","Group"))
+
+select <- order(rowMeans(counts(ddslong,normalized=TRUE)),
+               decreasing=TRUE)[1:20]
+df <- as.data.frame(colData(ddslong)[,c("Group","Clone")])
+pheatmap(assay(ddslong)[select,], cluster_rows=TRUE, show_rownames=TRUE,
+         cluster_cols=TRUE, annotation_col=df)
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/DElong_Heatmap.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/DElong_Heatmap.svg"))
+dev.off()
+
+sampleDists <- dist(t(assay(ddslong)))
+library("RColorBrewer")
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- paste(ddslong$Group, ddslong$Clone, sep="-")
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Greens")) )(255)
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows=sampleDists,
+         clustering_distance_cols=sampleDists,
+         col=colors,
+         cluster_rows=TRUE, show_rownames=TRUE,
+         cluster_cols=TRUE)
+
+## Bonferooni Multiple-testing Adjustemnt
+# Create new pbonferonni variable - exactly the same as P-value
+DEresultslong$pbonferroni <- DEresultslong$pvalue
+# Adjust the values using the bonferonni method:
+DEresultslong$pbonferroni<-p.adjust(DEresultslong$pbonferroni, method = "bonferroni", n = length(DEresultslong$pbonferroni))
+# order the new pbonferonni values
+DEresultslong <- DEresultslong[order(DEresultslong$pbonferroni),]
+# Display P-vlue distribution:
+hist(DEresultslong$pbonferroni, 
+     main = "Bonferroni Adjusted",
+     xlab = "P value (Bonferroni Adjusted)")
+dev.copy(png, file = file.path(getwd(),
+                               "figures/exp1data/png_plots/Bonferroni_Pvalues.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),
+                               "figures/exp1data/svg_plots/Bonferroni_Pvalues.svg"))
+dev.off()
+
+## Banjamini and Hochberg Multiple-testing Adjustemnt
+# Create new pbonferonni variable - exactly the same as P-value
+DEresultslong$pfdr <- DEresultslong$pvalue
+# Adjust the values using the bonferonni method:
+DEresultslong$pfdr<-p.adjust(DEresultslong$pbonferroni, method = "fdr", n = length(DEresultslong$pbonferroni))
+# order the new hochberg values
+DEresultslong <- DEresultslong[order(DEresultslong$pfdr),]
+# Display P-vlue distribution:
+hist(DEresultslong$pfdr, 
+     main = "Hochberg Adjusted",
+     xlab = "P value (Hochburg Adjusted)")
+dev.copy(png, file = file.path(getwd(),
+                               "figures/exp1data/png_plots/Hochberg_Pvalues.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),
+                               "figures/exp1data/svg_plots/Hochberg_Pvalues.svg"))
+dev.off()
+
+## Holm Multiple-testing Adjustemnt
+# Create new pbonferonni variable - exactly the same as P-value
+DEresultslong$pholm <- DEresultslong$pvalue
+# Adjust the values using the bonferonni method:
+DEresultslong$pholm<-p.adjust(DEresultslong$pbonferroni, method = "holm", n = length(DEresultslong$pbonferroni))
+# order the new pbonferonni values
+DEresultslong <- DEresultslong[order(DEresultslong$pholm),]
+# Display P-vlue distribution:
+hist(DEresultslong$pholm, 
+     main = "Holm Adjusted",
+     xlab = "P value (Holm Adjusted)")
+
+dev.copy(png, file = file.path(getwd(),
+                               "figures/exp1data/png_plots/Holm_Pvalues.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),
+                               "figures/exp1data/svg_plots/Holm_Pvalues.svg"))
+dev.off()
+
+par(mfrow = c(1,2))
+hist(DEresultslong$padj,
+     main = "DEseq default adjustment")
+hist(DEresultslong$pvalue,
+     main = "Raw P Values (~ Clone + Group)")
+par(mfrow = c(1,1))
+
+ggplot(data = as.data.frame(DEresultslong), aes(x = pvalue)) + 
+  geom_histogram(bins = 100)
+dev.copy(png, file = file.path(getwd(), "figures/exp1data/png_plots/Pvalues_long_CloneAndGroup.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(), "figures/exp1data/png_plots/Pvalues_long_CloneAndGroup.svg"))
+dev.off()
+
+hist(DEresultslong$pvalue,
+     main = "Raw P Values (~ Clone + Group)")
 
 ## Independent hypothesis weighting
 # BiocManager::install("IHW", force = TRUE)
@@ -615,6 +744,7 @@ df <- as.data.frame(colData(ddsshort)[,c("Group","Clone")])
 pheatmap(assay(ddsshort)[select,], cluster_rows=TRUE, show_rownames=TRUE,
          cluster_cols=TRUE, annotation_col=df)
 dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/DEshort_Heatmap.png"))
+dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/DEshort_Heatmap.svg"))
 dev.off()
 
@@ -644,9 +774,9 @@ dev.off()
 
 ggplot(data = as.data.frame(DEresultsshort), aes(x = pvalue)) + 
   geom_histogram(bins = 100)
-dev.copy(png, file = file.path(getwd(),"figures/example/PValue_Distribution_short.png"))
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/PValue_short_CloneAndGroup.png"))
 dev.off()
-dev.copy(svg, file = file.path(getwd(),"figures/example/PValue_Distribution_short.svg"))
+dev.copy(svg, file = file.path(getwd(),"figures/example/PValue_short_CloneAndGroup.svg"))
 dev.off()
 
 ## Bonferooni Multiple-testing Adjustemnt
