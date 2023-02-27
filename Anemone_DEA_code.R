@@ -13,7 +13,7 @@ dir.create(file.path("figures","exp1data")) ## make exp1data folder
 dir.create(file.path("figures/exp1data","png_plots")) ## make folder for pngs
 dir.create(file.path("figures/exp1data","svg_plots")) ## make folder for svgs
 
-## Building, installing and loading required packages: ----
+## 1. Building, installing and loading required packages: ----
 
 # Build function...
 check_packages <- function(pkg_list) {
@@ -50,7 +50,7 @@ BiocManager::install("DESeq2", force = TRUE)
 BiocManager::install("RUVSeq", force = TRUE)
 library(gage)
 
-## Load in Count Data: ----
+## 2.  Load in Count Data: ----
 counts <- as.matrix(read.table("data/A_Equina/A_Equina_Counts_redo.tsv", header = T, sep = '\t'))
 str(counts)
 Counts_only <- subset(counts, select = c(-Chr,-Start,-End,-Strand,-Length))
@@ -59,7 +59,7 @@ str(Counts_only[2,])
 countslong<- subset(counts[,c(1:5,13:26)])
 countsshort <- subset(counts[,c(1:5,6:12,27:33)])
 
-## Calculate Parameters: ----
+## 3. Calculate Parameters: ----
 {
 # CPM
 cpm <- {apply(subset(counts, select = c(-Chr,-Start,-End,-Strand,-Length)), 2, 
@@ -294,9 +294,9 @@ dev.off()
 dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/correlation_heatmap_short.short"))
 dev.off()
 
-## 5. Differential Expression Analysis ----
+## 5. DEA (~Group) ----
 
-#remove the 'width' column
+# remove the 'width' column
 countData <- as.matrix(subset(counts, select = c(-Chr,-Start,-End,-Strand,-Length)))
 countDatalong <- as.matrix(subset(countslong, select = c(-Chr,-Start,-End,-Strand,-Length)))
 countDatashort <- as.matrix(subset(countsshort, select = c(-Chr,-Start,-End,-Strand,-Length)))
@@ -510,7 +510,7 @@ dev.off()
  # and correlation plots to see if there is more unwanted variation in the data,
  # which can be further accounted for using packages such as RUVseq and sva.
 
-## 8. Accounting for additional sources of variation ----
+## 6. DEA (~Clone + Group)----
 
 # Sometimes unforeseen variables may contribute to some of the variation in 
 # our results (e.g. batch number, temperature of sample storage, etc...)
