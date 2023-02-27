@@ -580,8 +580,7 @@ sum(DEresultslong$padj < 0.1, na.rm=TRUE)
 DEresultslong05 <- results(ddslong, alpha=0.05)
 summary(DEresultslong05)
 sum(DEresultslong05$padj < 0.05, na.rm=TRUE)
-DElonglist <- (DEresultslong$padj < 0.05)
-DElonglist
+write.csv(as.data.frame(DEresultslong05), file = "DEresultslong05.csv")
 
 ## Build initial DEseq matrix
 ddsshort <- DESeqDataSetFromMatrix(countData = countDatashort, 
@@ -615,12 +614,118 @@ sum(DEresultsshort$padj < 0.1, na.rm=TRUE)
 DEresultsshort05 <- results(ddsshort, alpha=0.05)
 summary(DEresultsshort05)
 sum(DEresultsshort05$padj < 0.05, na.rm=TRUE)
+write.csv(as.data.frame(DEresultsshort05), file = "DEresultsshort05.csv")
+
+vignette("DESeq2")
+
+## P Value Distributions
+
+par(mfrow = c(1,2))
+hist(DEresultslong$padj,
+     main = "DEseq default adjustment [Long]",
+     breaks = 200)
+hist(DEresultslong$pvalue,
+     main = "Raw P Values (~ Clone + Group) [Long]",
+     breaks = 200)
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PValueDist_CloneAndGroup_Long.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PValueDist_CloneAndGroup_Long.svg"))
+dev.off()
+par(mfrow = c(1,1))
+
+par(mfrow = c(1,2))
+hist(DEresultsshort$padj,
+     main = "DEseq default adjustment [Short]",
+     breaks = 200)
+hist(DEresultsshort$pvalue,
+     main = "Raw P Values (~ Clone + Group) [Short]",
+     breaks = 200)
+dev.copy(png, file = file.path(getwd(),"figures/exp1data/png_plots/PValueDist_CloneAndGroup_Short.png"))
+dev.off()
+dev.copy(svg, file = file.path(getwd(),"figures/exp1data/svg_plots/PValueDist_CloneAndGroup_Short.svg"))
+dev.off()
+par(mfrow = c(1,1))
 
 
+## PCA plot
 
+# checks the biological reproducibility of the sample replicates in a PCA plot
+# or a heatmap.to plot PCA results, we need to extract the normalized counts 
+# from the DEseqDataSet object. It is possible to colour the points in the 
+# scatter plot by the variable of interest, which helps to see if the replicates
+# cluster well.
 
-#### Add the following parts back once you haev ran throuhg all the previous
-#### plots.
+# extract normalized counts from the DESeqDataSet object
+countsNormalized <- DESeq2::counts(ddslong, normalized = TRUE)
+
+# select top 500 most variable genes
+selectedGenes500long<- names(sort(apply(countsNormalized, 1, var), 
+                                  decreasing = TRUE)[1:500])
+
+DESeq2::plotPCA(countsNormalized[selectedGenes500long,], 
+                col = as.numeric(colDatalong$Group), 
+                adj = 0.5, 
+                xlim = c(-0.6, 0.6), 
+                ylim = c(-0.6, 0.6),
+                main = "PCA of Normalized counts [Long]")
+
+# extract normalized counts from the DESeqDataSet object
+countsNormalized <- DESeq2::counts(ddsshort, normalized = TRUE)
+
+# select top 500 most variable genes
+selectedGenes500short<- names(sort(apply(countsNormalized, 1, var), 
+                                   decreasing = TRUE)[1:500])
+
+DESeq2::plotPCA(countsNormalized[selectedGenes500short,], 
+                col = as.numeric(colDatashort$Group), 
+                adj = 0.5, 
+                xlim = c(-0.7, 0.7), 
+                ylim = c(-0.6, 0.6),
+                main = "PCA of Normalized Counts [Short]")
+
+## Relative Log Expression (RLE) plot:
+
+# useful in finding out if the data at hand needs normalization.
+# Runs a quick dignostic to be applied on the raw or normliazed count
+# matrices to see if further processing is required.
+#install.packages("EDASeq")
+
+par(mfrow = c(1, 2))
+plotRLE(countDatalong, outline=FALSE, ylim=c(-4, 4), 
+        col=as.numeric(colDatalong$Group), 
+        main = 'Raw Counts [Long]')
+plotRLE(DESeq2::counts(ddslong, normalized = TRUE), 
+        outline=FALSE, ylim=c(-4, 4), 
+        col = as.numeric(colDatalong$Group), 
+        main = 'Normalized Counts [Long]')
+par(mfrow = c(1, 1))
+
+par(mfrow = c(1, 2))
+plotRLE(countDatashort, outline=FALSE, ylim=c(-4, 4), 
+        col=as.numeric(colDatashort$Group), 
+        main = 'Raw Counts [Long]')
+plotRLE(DESeq2::counts(ddsshort, normalized = TRUE), 
+        outline=FALSE, ylim=c(-4, 4), 
+        col = as.numeric(colDatashort$Group), 
+        main = 'Normalized Counts [Short]')
+par(mfrow = c(1, 1))
+
+# Here the RLE plot is comprised of boxplots, where each box-plot = 
+# distribution of the relative log expression of the genes expressed in the 
+# corresponding sample
+# Each genes expression is divided by the median expression value of that gene
+# across all samples
+
+# Ideally the boxplots are centered around the horizontal zero line and are
+# as tightly distributed as possible (Risso, Ngai, Speed, et al. 2014)
+# We can observe here how the noramlized dataset has improved upon the raw 
+# count data for all the samples
+# However, in some cases, it is important to visualise the RLE plots in
+# combination with other diagnostic plots such as PCA plots, heatmaps,
+# and correlation plots to see if there is more unwanted variation in the data,
+# which can be further accounted for using packages such as RUVseq and sva.
+
+#### Add the following parts back once you have ran through all the previous plots.----
 
 ## Independent hypothesis weighting
 #install.packages("IHW")
@@ -787,7 +892,8 @@ DEresultsshort$pbonferroni<-p.adjust(DEresultsshort$pbonferroni, method = "bonfe
 # order the new pbonferonni values
 DEresultsshort <- DEresultsshort[order(DEresultsshort$pbonferroni),]
 # Display P-vlue distribution:
-hist(DEresultsshort$pbonferroni)
+hist(DEresultsshort$pbonferroni,
+     breaks = 200)
 
 ## Banjamini and Hochberg Multiple-testing Adjustemnt
 # Create new pbonferonni variable - exactly the same as P-value
@@ -797,7 +903,8 @@ DEresultsshort$pfdr<-p.adjust(DEresultsshort$pbonferroni, method = "fdr", n = le
 # order the new pbonferonni values
 DEresultsshort <- DEresultsshort[order(DEresultsshort$pfdr),]
 # Display P-vlue distribution:
-hist(DEresultsshort$pfdr)
+hist(DEresultsshort$pfdr,
+     breaks = 200)
 
 ## Holm Multiple-testing Adjustemnt
 # Create new pbonferonni variable - exactly the same as P-value
@@ -807,7 +914,8 @@ DEresultsshort$pholm<-p.adjust(DEresultsshort$pbonferroni, method = "holm", n = 
 # order the new pbonferonni values
 DEresultsshort <- DEresultsshort[order(DEresultsshort$pholm),]
 # Display P-vlue distribution:
-hist(DEresultsshort$pholm)
+hist(DEresultsshort$pholm,
+     breaks = 200)
 
 par(mfrow = c(1,2))
 hist(DEresultsshort$padj)
