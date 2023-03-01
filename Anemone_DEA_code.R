@@ -724,3 +724,32 @@ par(mfrow = c(1, 1))
 # combination with other diagnostic plots such as PCA plots, heatmaps,
 # and correlation plots to see if there is more unwanted variation in the data,
 # which can be further accounted for using packages such as RUVseq and sva.
+
+## Selecting our GoIs
+# Long
+DE <- DEresultslong[!is.na(DEresultslong$padj),]
+DE <- DE[DE$padj < 0.1,]
+DE <- DE[abs(DE$log2FoldChange) > 1,]
+GOI_Long <- rownames(DE)
+# Short
+DE <- DEresultsshort[!is.na(DEresultsshort$padj),]
+DE <- DE[DE$padj < 0.1,]
+DE <- DE[abs(DE$log2FoldChange) > 1,]
+GOI_short <- rownames(DE)
+
+library(gprofiler2)
+
+goResults <- gost(query = GOI_Long, 
+                       organism = 'aegca011057435',
+                  significant = FALSE)
+
+names(goResults)
+head(goResults$result, 3)
+
+goResults_long_link <- gost(query = GOI_Long,
+                       as_short_link = TRUE)
+goResults_long_link
+
+goResults_short_link <- gost(query = GOI_short,
+                       as_short_link = TRUE)
+goResults_short_link
