@@ -132,8 +132,12 @@ go <- enrichGO(genes,
                org.Sc.sgd.db, 
                keyType = "GENENAME",
                ont = "ALL")
+  # NOTE: the "org.Sc.sgd.db" is a YEAST specific genome wide
+  # annotation package. Therefore it cannot be used with other
+  # species of phylum of life. Refer to the "edgeR" manual
+  # linked above for examples of how to perform GO.
 
-# Write table of of signifivant GO terms:
+# Write table of of significant GO terms:
 write.table(go, "GO_enrich.txt",
             sep="\t",
             row.names=FALSE)
