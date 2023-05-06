@@ -32,7 +32,7 @@ check_packages <- function(pkg_list) {
 pkg_list<-c("tidyverse", "DESeq2", "tibble", "stats", "EDASeq",
             "ggplot2", "pheatmap", "dplyr", "tidyr", "ggfortify", 
             "corrplot", "gprofiler2", "knitr", "gProfileR", 
-            "gage", "RUVSeq", "compGenomRData")
+            "gage", "RUVSeq", "compGenomRData","gprofiler2")
 
 # Execute function (x2):
 check_packages(pkg_list)
@@ -610,13 +610,19 @@ dev.off()
 
 
 summary(DEresultsshort)
-sum(DEresultsshort$padj < 0.1, na.rm=TRUE)
-DEresultsshort05 <- results(ddsshort, alpha=0.05)
+sum(DEresultsshort$padj < 0.25, na.rm=TRUE)
+DEresultsshort05 <- results(ddsshort, alpha=0.25)
 summary(DEresultsshort05)
-sum(DEresultsshort05$padj < 0.05, na.rm=TRUE)
+sum(DEresultsshort05$padj < 0.25, na.rm=TRUE)
 write.csv(as.data.frame(DEresultsshort05), file = "DEresultsshort05.csv")
 
 vignette("DESeq2")
+
+#Extract DEG names:
+DE <- DEresultsshort[!is.na(DEresultsshort$padj),]
+DE <- DE[DE$padj < 0.1,]
+DEG_names <- rownames(DE)
+write.csv(as.data.frame(DEG_names), file = "DEG_names.csv")
 
 ## P Value Distributions
 
@@ -725,7 +731,7 @@ par(mfrow = c(1, 1))
 # and correlation plots to see if there is more unwanted variation in the data,
 # which can be further accounted for using packages such as RUVseq and sva.
 
-## Selecting our GoIs
+## Selecting our GoIs P < 0.1
 # Long
 DE <- DEresultslong[!is.na(DEresultslong$padj),]
 DE <- DE[DE$padj < 0.1,]
@@ -753,3 +759,79 @@ goResults_long_link
 goResults_short_link <- gost(query = GOI_short,
                        as_short_link = TRUE)
 goResults_short_link
+
+
+## Selecting our GoIs P < 0.25
+# Long
+DE <- DEresultslong[!is.na(DEresultslong$padj),]
+DE <- DE[DE$padj < 0.25,]
+DE <- DE[abs(DE$log2FoldChange) > 1,]
+GOI_Long <- rownames(DE)
+
+
+## Short
+# Increasing Order
+DE <- DEresultsshort[!is.na(DEresultsshort$padj),]
+DE <- DE[DE$padj < 0.25,]
+DE <- DE[order(DE$log2FoldChange, decreasing = FALSE),]
+GOI_short <- rownames(DE)
+
+goResults_short_link <- gost(query = GOI_short,
+                             as_short_link = TRUE)
+goResults_short_link
+
+DE <- DEresultsshort[!is.na(DEresultsshort$padj),]
+DE <- DE[DE$padj < 0.25,]
+DE <- DE[order(DE$log2FoldChange, decreasing = FALSE),]
+DE <- DE[(DE$log2FoldChange) < -1,]
+GOI_short <- rownames(DE)
+
+goResults_short_link <- gost(query = GOI_short,
+                             as_short_link = TRUE)
+goResults_short_link
+
+
+# Decreasing Order
+DE <- DEresultsshort[!is.na(DEresultsshort$padj),]
+DE <- DE[DE$padj < 0.25,]
+DE <- DE[abs(DE$log2FoldChange) > 1,]
+DE <- DE[order(DE$log2FoldChange, decreasing = TRUE),]
+GOI_short <- rownames(DE)
+
+goResults_short_link <- gost(query = GOI_short,
+                             as_short_link = TRUE)
+goResults_short_link
+
+DE <- DEresultsshort[!is.na(DEresultsshort$padj),]
+DE <- DE[DE$padj < 0.25,]
+DE <- DE[order(DE$log2FoldChange, decreasing = TRUE),]
+GOI_short <- rownames(DE)
+
+goResults_short_link <- gost(query = GOI_short,
+                             as_short_link = TRUE)
+goResults_short_link
+
+
+## g:Profiler with all genes sorted bby...
+# Increasing LFC
+DE <- DEresultsshort[!is.na(DEresultsshort$padj),]
+DE <- DE[order(DE$log2FoldChange, decreasing = FALSE),]
+GOI_All_Increasing_Short <- rownames(DE)
+
+goResults_All_Increasing_Short_link <- gost(query = GOI_All_Increasing_Short,
+                             as_short_link = TRUE)
+
+goResults_All_Increasing_Short_link
+
+
+# Decreasing LFC
+DE <- DEresultsshort[!is.na(DEresultsshort$padj),]
+DE <- DE[order(DE$log2FoldChange, decreasing = TRUE),]
+GOI_All_Decreasing_Short <- rownames(DE)
+
+goResults_All_Decreasing_Short_link <- gost(query = GOI_All_Decreasing_Short,
+                                            as_short_link = TRUE)
+
+goResults_All_Decreasing_Short_link
+
+
